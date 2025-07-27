@@ -14,11 +14,9 @@ export default defineConfig({
 		proxy: {
 			// Proxy any request starting with /api to your backend server
 			"/api": {
-				target: "http://localhost:3000", // your backend server port
-
-				rewrite: (path) => path.replace(/^\/api/, ""),
+				target: "https://pnpplxprssdata.onrender.com", // your backend server port
 				changeOrigin: true,
-				secure: false,
+				rewrite: (path) => path.replace(/^\/api/, ""),
 			},
 		},
 	},
