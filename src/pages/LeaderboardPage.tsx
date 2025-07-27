@@ -2,8 +2,10 @@ import { useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { LeaderboardTable } from "@/components/LeaderboardTable";
-import { useLeaderboardStore } from "@/store/useLeaderboardStore";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+	useLeaderboardStore,
+	LeaderboardPeriod,
+} from "@/store/useLeaderboardStore";
 import { Crown, Info, Loader2, Trophy, Award, Medal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,50 +17,36 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 function LeaderboardPage() {
-	const {
-		weeklyLeaderboard,
-		monthlyLeaderboard,
-		period,
-		setPeriod,
-		fetchLeaderboard,
-		isLoading,
-		error,
-	} = useLeaderboardStore();
+	const { biweeklyLeaderboard, fetchLeaderboard, isLoading, error } =
+		useLeaderboardStore();
 
 	useEffect(() => {
-		fetchLeaderboard(period);
-	}, [period]);
-
-	const handleTabChange = (value: string) => {
-		setPeriod(value as LeaderboardPeriod);
-	};
-
-	const currentData =
-		period === "weekly" ? weeklyLeaderboard : monthlyLeaderboard;
+		fetchLeaderboard("biweekly");
+	}, [fetchLeaderboard]);
 
 	return (
-		<div className='flex flex-col min-h-screen bg-background'>
+		<div className='flex flex-col min-h-screen bg-[#191F3B] text-white'>
 			<Navbar />
 
 			<main className='container flex-grow py-8'>
 				<div className='flex items-center justify-between mb-8'>
 					<div className='flex items-center gap-2'>
-						<Crown className='w-6 h-6 text-secondary' />
+						<Crown className='w-6 h-6 text-[#EA6D0C]' />
 						<h1 className='text-3xl font-bold'>Rainbet Leaderboard</h1>
 					</div>
 
 					<TooltipProvider>
 						<Tooltip>
 							<TooltipTrigger asChild>
-								<div className='flex items-center gap-1 text-sm text-muted-foreground hover:text-white cursor-help'>
+								<div className='flex items-center gap-1 text-sm text-[#C33B52] hover:text-[#EA6D0C] cursor-help'>
 									<Info className='w-4 h-4' />
 									<span>How It Works</span>
 								</div>
 							</TooltipTrigger>
-							<TooltipContent className='max-w-xs'>
+							<TooltipContent className='max-w-xs bg-[#191F3B] text-white border border-[#EA6D0C] shadow-lg'>
 								<p>
 									The leaderboard ranks players based on their total wager
-									amount using the 5MOKING affiliate code on Rainbet. Higher
+									amount using the PnpplXprss affiliate code on Rainbet. Higher
 									wagers result in a better ranking.
 								</p>
 							</TooltipContent>
@@ -66,15 +54,15 @@ function LeaderboardPage() {
 					</TooltipProvider>
 				</div>
 
-				<div className='p-6 mb-8 rounded-lg glass-card'>
-					<p className='mb-4'>
+				<div className='p-6 mb-8 rounded-lg bg-[#1E2547] border border-[#EA6D0C]/30'>
+					<p className='mb-4 text-[#C33B52]'>
 						Use affiliate code{" "}
-						<span className='font-semibold text-primary'>5MOKING</span> on
+						<span className='font-semibold text-[#EA6D0C]'>PnpplXprss</span> on
 						<a
 							href='https://rainbet.com'
 							target='_blank'
 							rel='noreferrer'
-							className='mx-1 text-secondary hover:text-secondary/80'
+							className='mx-1 text-[#38BDF8] hover:text-[#EA6D0C]'
 						>
 							Rainbet
 						</a>
@@ -82,45 +70,51 @@ function LeaderboardPage() {
 					</p>
 
 					<div className='flex items-center gap-4'>
-						<div className='px-3 py-1.5 rounded-md bg-primary/10 flex items-center'>
-							<span className='text-muted-foreground'>Affiliate Code:</span>
-							<span className='ml-2 font-bold text-primary'>5MOKING</span>
+						<div className='px-3 py-1.5 rounded-md bg-[#EA6D0C]/10 flex items-center'>
+							<span className='text-[#C33B52]'>Affiliate Code:</span>
+							<span className='ml-2 font-bold text-[#EA6D0C]'>pnpplxprss</span>
 						</div>
 					</div>
 				</div>
 
 				{error && (
-					<Alert variant='destructive' className='mb-6'>
+					<Alert
+						variant='destructive'
+						className='mb-6 bg-[#AF2D03]/20 border-[#AF2D03] text-white'
+					>
 						<AlertDescription>
 							Failed to load leaderboard: {error}
 						</AlertDescription>
 					</Alert>
 				)}
 
+				{/* Reward Cards */}
 				<div className='mb-8'>
-					<h2 className='mb-6 text-2xl font-bold text-center'>Top Players</h2>
+					<h2 className='mb-6 text-2xl font-bold text-center text-white'>
+						Top Players
+					</h2>
 					<div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-						{currentData.length > 0 ? (
+						{biweeklyLeaderboard.length > 0 ? (
 							<>
 								<RewardCard
 									position='2nd Place'
 									reward='$250 Cash + Special Role'
 									backgroundColor='from-slate-300 to-slate-400'
-									player={currentData[1]}
+									player={biweeklyLeaderboard[1]}
 									icon={<Award className='w-8 h-8 text-slate-300' />}
 								/>
 								<RewardCard
 									position='1st Place'
 									reward='$500 Cash + Special Role'
 									backgroundColor='from-yellow-400 to-amber-600'
-									player={currentData[0]}
+									player={biweeklyLeaderboard[0]}
 									icon={<Trophy className='w-8 h-8 text-yellow-400' />}
 								/>
 								<RewardCard
 									position='3rd Place'
 									reward='$100 Cash + Special Role'
 									backgroundColor='from-amber-700 to-amber-800'
-									player={currentData[2]}
+									player={biweeklyLeaderboard[2]}
 									icon={<Medal className='w-8 h-8 text-amber-600' />}
 								/>
 							</>
@@ -149,44 +143,25 @@ function LeaderboardPage() {
 					</div>
 				</div>
 
-				<Tabs
-					defaultValue={period}
-					onValueChange={handleTabChange}
-					className='mb-6'
-				>
-					<TabsList className='grid w-full max-w-xs grid-cols-2'>
-						<TabsTrigger value='weekly'>Weekly</TabsTrigger>
-						<TabsTrigger value='monthly'>Monthly</TabsTrigger>
-					</TabsList>
-
-					<TabsContent value='weekly' className='mt-6'>
-						{isLoading && period === "weekly" ? (
-							<div className='flex items-center justify-center h-64'>
-								<Loader2 className='w-8 h-8 animate-spin' />
-							</div>
-						) : (
-							<LeaderboardTable
-								period='weekly'
-								data={weeklyLeaderboard}
-								isLoading={isLoading && period === "weekly"}
-							/>
-						)}
-					</TabsContent>
-
-					<TabsContent value='monthly' className='mt-6'>
-						{isLoading && period === "monthly" ? (
-							<div className='flex items-center justify-center h-64'>
-								<Loader2 className='w-8 h-8 animate-spin' />
-							</div>
-						) : (
-							<LeaderboardTable
-								period='monthly'
-								data={monthlyLeaderboard}
-								isLoading={isLoading && period === "monthly"}
-							/>
-						)}
-					</TabsContent>
-				</Tabs>
+				{/* Leaderboard Table */}
+				<div>
+					<div className='flex justify-center mb-4'>
+						<h2 className='text-xl font-semibold text-center text-[#ffffff] border-2 border-[#38BDF8] rounded-md py-2 px-6 inline-block'>
+							Biweekly Leaderboard
+						</h2>
+					</div>
+					{isLoading ? (
+						<div className='flex items-center justify-center h-64'>
+							<Loader2 className='w-8 h-8 animate-spin text-[#EA6D0C]' />
+						</div>
+					) : (
+						<LeaderboardTable
+							period='biweekly'
+							data={biweeklyLeaderboard}
+							isLoading={isLoading}
+						/>
+					)}
+				</div>
 			</main>
 
 			<Footer />
@@ -210,33 +185,29 @@ function RewardCard({
 	icon,
 }: RewardCardProps) {
 	return (
-		<div className='flex flex-col h-full overflow-hidden rounded-lg glass-card'>
+		<div className='flex flex-col h-full overflow-hidden rounded-xl bg-[#1E2547] border border-[#EA6D0C]/30 shadow-sm'>
 			<div className={`h-2 bg-gradient-to-r ${backgroundColor}`} />
-			<div className='flex flex-col items-center flex-grow p-6 text-center'>
+			<div className='flex flex-col items-center flex-grow p-6 text-center text-white'>
 				<div className='mb-4'>{icon}</div>
 				<h3 className='mb-2 text-xl font-bold'>{position}</h3>
 
 				{player ? (
 					<>
 						<p className='font-medium'>{player.username}</p>
-						<p className='text-muted-foreground'>
-							${player.wager.toLocaleString()}
-						</p>
-
-						{/* Claim Button */}
+						<p className='text-[#C33B52]'>${player.wager.toLocaleString()}</p>
 						<a
 							href='https://discord.gg/3eVUWD4BtF'
 							target='_blank'
 							rel='noreferrer'
 							className='w-full mt-4'
 						>
-							<Button className='w-full' variant='secondary'>
+							<Button className='w-full bg-[#AF2D03] hover:bg-[#C33B52] text-white'>
 								Claim Prize
 							</Button>
 						</a>
 					</>
 				) : (
-					<p className='text-muted-foreground'>{reward}</p>
+					<p className='text-[#C33B52]'>{reward}</p>
 				)}
 			</div>
 		</div>

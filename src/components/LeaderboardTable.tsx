@@ -9,7 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Crown } from "lucide-react";
 
-type LeaderboardPeriod = "weekly" | "monthly";
+type LeaderboardPeriod = "weekly" | "biweekly" | "monthly";
 
 interface LeaderboardPlayer {
 	rank: number;
@@ -20,53 +20,72 @@ interface LeaderboardPlayer {
 
 interface LeaderboardTableProps {
 	period: LeaderboardPeriod;
-	data: LeaderboardPlayer[];
+	data: LeaderboardPlayer[] | undefined;
 }
 
-// Define prize structure
-const PRIZES = {
+// 💸 Prize mappings for all periods
+const PRIZES: Record<LeaderboardPeriod, Record<number, number>> = {
 	weekly: {
 		1: 50,
 		2: 25,
-		3: 10,
+		3: 15,
+	},
+	biweekly: {
+		1: 100,
+		2: 50,
+		3: 30,
+		4: 20,
 	},
 	monthly: {
-		1: 300,
-		2: 200,
+		1: 200,
+		2: 100,
 		3: 50,
+		4: 30,
+		5: 20,
 	},
 };
 
 export function LeaderboardTable({ period, data }: LeaderboardTableProps) {
+	if (!data || data.length === 0) {
+		return (
+			<div className='text-center py-10 text-[#C33B52]'>
+				No leaderboard data available for {period}.
+			</div>
+		);
+	}
+
 	return (
-		<div className='overflow-hidden border rounded-lg border-white/10'>
+		<div className='overflow-hidden border rounded-lg border-[#FFFFFF]/30'>
 			<Table>
-				<TableHeader className='bg-primary/10'>
+				<TableHeader className='bg-[#191F3B]/90'>
 					<TableRow>
-						<TableHead className='w-12 text-center'>Rank</TableHead>
-						<TableHead>Player</TableHead>
-						<TableHead className='text-right'>Wager</TableHead>
-						<TableHead className='text-right'>Prize</TableHead>
+						<TableHead className='w-12 text-center text-[#EA8105]'>
+							Rank
+						</TableHead>
+						<TableHead className='text-[#FFFFFF]'>Player</TableHead>
+						<TableHead className='text-right text-[#FFFFFF]'>Wager</TableHead>
+						<TableHead className='text-right text-[#38BDF8]'>Prize</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					{data.map((player) => {
-						const prize = PRIZES[period][player.rank as 1 | 2 | 3] || 0;
+						const prize = PRIZES[period]?.[player.rank] || 0;
+
 						return (
 							<TableRow
 								key={player.username}
-								className={player.isFeatured ? "bg-primary/5" : ""}
+								className={player.isFeatured ? "bg-[#C33B52]/10" : ""}
 							>
-								<TableCell className='font-medium text-center'>
+								<TableCell className='font-medium text-center text-[#EA8105]'>
 									{player.rank <= 3 ? (
 										<div className='flex items-center justify-center'>
 											<Crown
 												className={`h-4 w-4 ${
 													player.rank === 1
-														? "text-yellow-400"
+														? "text-[#EA8105]"
 														: player.rank === 2
-														? "text-gray-300"
-														: "text-amber-600"
+														? "text-[#FFFFFF]/80"
+														: "text-[#C33B52]"
 												}`}
 											/>
 										</div>
@@ -74,21 +93,21 @@ export function LeaderboardTable({ period, data }: LeaderboardTableProps) {
 										player.rank
 									)}
 								</TableCell>
-								<TableCell className='flex items-center gap-2 font-medium'>
+								<TableCell className='flex items-center gap-2 font-medium text-[#FFFFFF]'>
 									{player.username}
 									{player.isFeatured && (
 										<Badge
 											variant='outline'
-											className='border-primary text-primary'
+											className='border-[#C33B52] text-[#C33B52]'
 										>
 											Streamer
 										</Badge>
 									)}
 								</TableCell>
-								<TableCell className='text-right'>
+								<TableCell className='text-right text-[#FFFFFF]'>
 									${player.wager.toLocaleString()}
 								</TableCell>
-								<TableCell className='text-right'>
+								<TableCell className='text-right text-[#AF2D03]'>
 									{prize > 0 ? `$${prize}` : "-"}
 								</TableCell>
 							</TableRow>

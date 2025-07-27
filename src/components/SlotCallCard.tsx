@@ -27,21 +27,21 @@ export function SlotCallCard({
 	isAdminView = false,
 }: SlotCallProps) {
 	return (
-		<div className='flex flex-col p-4 rounded-lg glass-card'>
+		<div className='flex flex-col p-4 rounded-lg glass-card bg-[#191F3B] border border-[#EA8105]/40 text-white'>
 			<div className='flex items-start justify-between'>
-				<h3 className='text-lg font-bold'>{slotName}</h3>
+				<h3 className='text-lg font-bold text-[#fffffe]'>{slotName}</h3>
 				<StatusBadge status={status} />
 			</div>
 
-			<div className='mt-2 text-sm text-muted-foreground'>
-				Requested by: <span className='text-white'>{requester}</span>
+			<div className='mt-2 text-sm text-[#EA8105]'>
+				Requested by: <span className='text-[#ffffff]'>{requester}</span>
 			</div>
 
-			<span className='text-secondary'>
+			<span className='text-[#C33B52] mt-1'>
 				${betAmount ? betAmount.toLocaleString() : "0"}
 			</span>
 
-			<div className='flex items-center gap-1 mt-4 text-xs text-muted-foreground'>
+			<div className='flex items-center gap-1 mt-4 text-xs text-[#ffffff]'>
 				<Clock className='w-3 h-3' />
 				{timestamp}
 			</div>
@@ -50,13 +50,14 @@ export function SlotCallCard({
 				<div className='flex gap-2 mt-4'>
 					<button
 						onClick={() => onAccept && onAccept(id)}
-						className='flex items-center justify-center flex-1 gap-1 px-3 py-1 text-sm text-green-400 transition-colors rounded bg-green-600/20 hover:bg-green-600/30'
+						className='flex items-center justify-center flex-1 gap-1 px-3 py-1 text-sm text-white transition-colors bg-green-600 rounded hover:bg-green-700'
 					>
 						<Check className='w-4 h-4' /> Accept
 					</button>
+
 					<button
 						onClick={() => onReject && onReject(id)}
-						className='flex items-center justify-center flex-1 gap-1 px-3 py-1 text-sm text-red-400 transition-colors rounded bg-red-600/20 hover:bg-red-600/30'
+						className='flex items-center justify-center flex-1 gap-1 px-3 py-1 text-sm text-white transition-colors bg-red-600 rounded hover:bg-red-700'
 					>
 						<X className='w-4 h-4' /> Reject
 					</button>
@@ -71,7 +72,7 @@ function StatusBadge({ status }: { status: SlotCallStatus }) {
 		return (
 			<Badge
 				variant='outline'
-				className='text-yellow-400 border-yellow-400 bg-yellow-500/20'
+				className='text-[#EA8105] border-[#EA8105] bg-[#EA8105]/20'
 			>
 				Pending
 			</Badge>
@@ -80,7 +81,7 @@ function StatusBadge({ status }: { status: SlotCallStatus }) {
 		return (
 			<Badge
 				variant='outline'
-				className='text-green-400 border-green-400 bg-green-500/20'
+				className='text-[#38BDF8] border-[#38BDF8] bg-[#38BDF8]/20'
 			>
 				Accepted
 			</Badge>
@@ -89,7 +90,7 @@ function StatusBadge({ status }: { status: SlotCallStatus }) {
 		return (
 			<Badge
 				variant='outline'
-				className='text-red-400 border-red-400 bg-red-500/20'
+				className='text-[#C33B52] border-[#C33B52] bg-[#C33B52]/20'
 			>
 				Rejected
 			</Badge>

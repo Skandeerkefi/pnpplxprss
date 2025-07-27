@@ -17,7 +17,7 @@ export function Navbar() {
 	useEffect(() => {
 		const fetchLiveStatus = async () => {
 			try {
-				const res = await fetch("https://kick.com/api/v2/channels/5moking");
+				const res = await fetch("https://kick.com/api/v2/channels/pnpplxprss");
 				const data = await res.json();
 
 				if (data.livestream) {
@@ -57,24 +57,27 @@ export function Navbar() {
 	];
 
 	return (
-		<nav className='sticky top-0 z-50 border-b border-white/10 backdrop-blur-md bg-card/70'>
+		<nav className='sticky top-0 z-50 border-b border-[#EA8105]/40 backdrop-blur-md bg-[#191F3B]/95 text-white shadow-md'>
 			<div className='container flex items-center justify-between py-3 mx-auto'>
-				{/* Logo + Live Status */}
-				<div className='flex items-center gap-2'>
+				{/* Logo & Live status */}
+				<div className='flex items-center gap-3'>
 					<Link to='/' className='flex items-center gap-2'>
 						<img
-							src='https://files.kick.com/images/user/48867484/profile_image/conversion/ae281c89-eae8-44d5-ab0c-6bb20b93ee6d-fullsize.webp'
-							alt='5MOKING Logo'
-							className='object-cover w-10 h-10 border rounded-full shadow-sm border-white/20'
+							src='https://i.ibb.co/DDn0q6D3/IMG-9430.webp'
+							alt='pnpplxprss Logo'
+							className='object-cover w-10 h-10 border rounded-full shadow-sm border-[#EA8105]/60'
 						/>
-						<span className='text-xl font-bold gradient-text'>5MOKING</span>
+						<span className='text-2xl font-bold text-[#C33B52] select-none'>
+							PnpplXprss
+						</span>
 					</Link>
+
 					{isLive ? (
-						<span className='ml-2 px-2 py-0.5 text-xs bg-red-600 text-white rounded-full animate-pulse'>
+						<span className='ml-2 px-3 py-0.5 text-xs bg-[#AF2D03] text-white rounded-full font-semibold animate-pulse select-none'>
 							🔴 LIVE {viewerCount !== null ? `(${viewerCount})` : ""}
 						</span>
 					) : (
-						<span className='ml-2 px-2 py-0.5 text-xs bg-muted text-muted-foreground rounded-full'>
+						<span className='ml-2 px-3 py-0.5 text-xs bg-[#C33B52] text-white rounded-full font-semibold select-none'>
 							Offline
 						</span>
 					)}
@@ -82,15 +85,17 @@ export function Navbar() {
 
 				{/* Desktop Navigation */}
 				{!isMobile && (
-					<div className='flex items-center gap-4'>
+					<div className='flex items-center gap-6'>
 						{/* Menu Links */}
-						<div className='flex items-center'>
+						<div className='flex items-center gap-3'>
 							{menuItems.map((item) => (
 								<Link
 									key={item.path}
 									to={item.path}
-									className={`nav-link flex items-center ${
-										location.pathname === item.path ? "nav-link-active" : ""
+									className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+										location.pathname === item.path
+											? "bg-[#AF2D03] text-white shadow-md"
+											: "text-[#ffffff] hover:bg-[#EA8105] hover:text-white"
 									}`}
 								>
 									{item.icon}
@@ -99,30 +104,47 @@ export function Navbar() {
 							))}
 						</div>
 
-						{/* Authentication Buttons */}
-						<div className='flex items-center gap-2'>
+						{/* Auth Buttons */}
+						<div className='flex items-center gap-3'>
 							{user ? (
 								<>
 									<Button variant='ghost' size='sm' asChild>
-										<Link to='/' className='flex items-center gap-1'>
+										<Link
+											to='/'
+											className='flex items-center gap-1 font-semibold text-white'
+										>
 											<User className='w-4 h-4' />
-											<span>{user.username}</span>
+											{user.username}
 										</Link>
 									</Button>
-									<Button variant='outline' size='sm' onClick={logout}>
+									<Button
+										variant='outline'
+										size='sm'
+										onClick={logout}
+										className='border-white text-white hover:bg-[#AF2D03] hover:border-[#AF2D03]'
+									>
 										<LogOut className='w-4 h-4 mr-1' />
 										Logout
 									</Button>
 								</>
 							) : (
 								<>
-									<Button variant='outline' size='sm' asChild>
+									<Button
+										variant='outline'
+										size='sm'
+										asChild
+										className='border-white text-[#ffffff] hover:bg-[#EA8105] hover:border-[#EA8105]'
+									>
 										<Link to='/login' className='flex items-center'>
 											<LogIn className='w-4 h-4 mr-1' />
 											Login
 										</Link>
 									</Button>
-									<Button size='sm' asChild>
+									<Button
+										size='sm'
+										asChild
+										className='text-[#ffffff] hover:text-[#EA8105] font-semibold'
+									>
 										<Link to='/signup'>Sign Up</Link>
 									</Button>
 								</>
@@ -131,26 +153,26 @@ export function Navbar() {
 					</div>
 				)}
 
-				{/* Mobile Navigation Toggle */}
+				{/* Mobile Nav Toggle */}
 				{isMobile && (
 					<button
-						className='p-2 rounded-md hover:bg-primary/10'
+						className='p-2 rounded-md hover:bg-[#EA8105]/30'
 						onClick={() => setIsOpen(!isOpen)}
 						aria-label='Toggle menu'
 					>
 						<div className='space-y-1.5'>
 							<span
-								className={`block h-0.5 w-6 bg-white transition-transform ${
+								className={`block h-0.5 w-6 bg-white transition-transform duration-300 ${
 									isOpen ? "rotate-45 translate-y-2" : ""
 								}`}
 							/>
 							<span
-								className={`block h-0.5 w-6 bg-white transition-opacity ${
+								className={`block h-0.5 w-6 bg-white transition-opacity duration-300 ${
 									isOpen ? "opacity-0" : ""
 								}`}
 							/>
 							<span
-								className={`block h-0.5 w-6 bg-white transition-transform ${
+								className={`block h-0.5 w-6 bg-white transition-transform duration-300 ${
 									isOpen ? "-rotate-45 -translate-y-2" : ""
 								}`}
 							/>
@@ -159,30 +181,33 @@ export function Navbar() {
 				)}
 			</div>
 
-			{/* Mobile Navigation Menu */}
+			{/* Mobile Menu */}
 			{isMobile && isOpen && (
-				<div className='container flex flex-col gap-2 py-2 pb-4 mx-auto border-t border-white/10'>
+				<div className='container flex flex-col gap-2 py-3 pb-4 mx-auto border-t border-[#EA8105]/40 transition-all duration-300'>
 					{menuItems.map((item) => (
 						<Link
 							key={item.path}
 							to={item.path}
-							className={`nav-link flex items-center ${
-								location.pathname === item.path ? "nav-link-active" : ""
-							}`}
 							onClick={() => setIsOpen(false)}
+							className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+								location.pathname === item.path
+									? "bg-[#AF2D03] text-white"
+									: "text-[#ffffff] hover:bg-[#EA8105] hover:text-white"
+							}`}
 						>
 							{item.icon}
 							{item.name}
 						</Link>
 					))}
-					<div className='flex flex-col gap-2 mt-2'>
+
+					<div className='flex flex-col gap-2 mt-3'>
 						{user ? (
 							<>
 								<Button variant='ghost' size='sm' className='w-full' asChild>
 									<Link
 										to='/profile'
 										onClick={() => setIsOpen(false)}
-										className='flex items-center'
+										className='flex items-center font-semibold text-white'
 									>
 										<User className='w-4 h-4 mr-1' />
 										{user.username}
@@ -191,7 +216,7 @@ export function Navbar() {
 								<Button
 									variant='outline'
 									size='sm'
-									className='w-full'
+									className='w-full border-white text-white hover:bg-[#AF2D03] hover:border-[#AF2D03]'
 									onClick={() => {
 										logout();
 										setIsOpen(false);
@@ -203,7 +228,12 @@ export function Navbar() {
 							</>
 						) : (
 							<>
-								<Button variant='outline' size='sm' className='w-full' asChild>
+								<Button
+									variant='outline'
+									size='sm'
+									className='w-full border-white text-[#ffffff] hover:bg-[#EA8105] hover:border-[#EA8105]'
+									asChild
+								>
 									<Link
 										to='/login'
 										onClick={() => setIsOpen(false)}
@@ -213,7 +243,11 @@ export function Navbar() {
 										Login
 									</Link>
 								</Button>
-								<Button size='sm' className='w-full' asChild>
+								<Button
+									size='sm'
+									className='w-full text-[#ffffff] hover:text-[#EA8105] font-semibold'
+									asChild
+								>
 									<Link to='/signup' onClick={() => setIsOpen(false)}>
 										Sign Up
 									</Link>

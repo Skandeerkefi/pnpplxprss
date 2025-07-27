@@ -29,9 +29,11 @@ const EmptyState = ({
 	searchQuery: string;
 	filter: FilterStatus;
 }) => (
-	<div className='py-12 text-center text-muted-foreground'>
-		<Dices className='w-16 h-16 mx-auto mb-4' />
-		<h2 className='mb-2 text-2xl font-bold'>No Slot Calls Found</h2>
+	<div className='py-12 text-center text-[#C33B52]'>
+		<Dices className='w-16 h-16 mx-auto mb-4 text-[#38BDF8]' />
+		<h2 className='mb-2 text-2xl font-bold text-[#EA8105]'>
+			No Slot Calls Found
+		</h2>
 		<p>
 			{searchQuery || filter !== "all"
 				? "Try different filters or search terms."
@@ -43,7 +45,10 @@ const EmptyState = ({
 const LoadingSkeleton = () => (
 	<div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
 		{[...Array(3)].map((_, i) => (
-			<div key={i} className='h-64 bg-gray-200 rounded-lg animate-pulse' />
+			<div
+				key={i}
+				className='h-64 rounded-lg animate-pulse bg-gradient-to-r from-[#191F3B] to-[#38BDF8]/20'
+			/>
 		))}
 	</div>
 );
@@ -164,28 +169,28 @@ function SlotCallsPage() {
 	};
 
 	return (
-		<div className='flex flex-col min-h-screen bg-background'>
+		<div className='flex flex-col min-h-screen bg-[#191F3B] text-white'>
 			<Navbar />
 
 			<main className='container flex-grow py-8'>
 				<div className='flex flex-col gap-4 mb-8 md:flex-row md:items-center md:justify-between'>
 					<div className='flex items-center gap-2'>
-						<Dices className='w-6 h-6 text-secondary' />
-						<h1 className='text-3xl font-bold'>Slot Calls</h1>
+						<Dices className='w-6 h-6 text-[#38BDF8]' />
+						<h1 className='text-3xl font-bold text-white'>Slot Calls</h1>
 					</div>
 
 					{!isAdmin && (
 						<Dialog>
 							<DialogTrigger asChild>
-								<Button>
+								<Button className='bg-[#EA8105] hover:bg-[#C33B52] text-white'>
 									<Plus className='w-4 h-4 mr-1' /> Request Slot Call
 								</Button>
 							</DialogTrigger>
-							<DialogContent>
+							<DialogContent className='bg-[#191F3B] text-white border border-[#EA8105]/40 rounded-lg'>
 								<DialogHeader>
 									<DialogTitle>Request a Slot Call</DialogTitle>
 									<DialogDescription>
-										Suggest a slot for 5MOKING to play during stream.
+										Suggest a slot for pnpplxprss to play during stream.
 									</DialogDescription>
 								</DialogHeader>
 
@@ -199,6 +204,7 @@ function SlotCallsPage() {
 											placeholder='e.g. Gates of Olympus'
 											value={slotName}
 											onChange={(e) => setSlotName(e.target.value)}
+											className='bg-[#191F3B] border border-[#EA8105] text-white placeholder:text-[#C33B52]'
 										/>
 									</div>
 									<div className='space-y-2'>
@@ -215,12 +221,17 @@ function SlotCallsPage() {
 											onChange={(e) =>
 												setBetAmount(parseInt(e.target.value) || 100)
 											}
+											className='bg-[#191F3B] border border-[#EA8105] text-white placeholder:text-[#C33B52]'
 										/>
 									</div>
 								</div>
 
 								<DialogFooter>
-									<Button onClick={handleSubmit} disabled={isSubmitting}>
+									<Button
+										onClick={handleSubmit}
+										disabled={isSubmitting}
+										className='bg-[#EA8105] hover:bg-[#C33B52] text-white'
+									>
 										{isSubmitting ? "Submitting..." : "Submit Request"}
 									</Button>
 								</DialogFooter>
@@ -229,35 +240,56 @@ function SlotCallsPage() {
 					)}
 				</div>
 
-				<div className='p-6 mb-8 rounded-lg glass-card'>
-					<p className='mb-6'>
+				<div className='p-6 mb-8 rounded-lg glass-card bg-[#191F3B] border border-[#EA8105]/40'>
+					<p className='mb-6 text-[#ffffff]'>
 						{isAdmin
 							? "Review and manage slot call requests submitted by users."
-							: "Request 5MOKING to play your favorite slots during his streams!"}
+							: "Request pnpplxprss to play your favorite slots during his streams!"}
 					</p>
 
 					<div className='flex flex-col gap-4 md:flex-row'>
 						<div className='relative flex-1'>
-							<Search className='absolute w-4 h-4 transform -translate-y-1/2 left-3 top-1/2 text-muted-foreground' />
+							<Search className='absolute w-4 h-4 transform -translate-y-1/2 left-3 top-1/2 text-[#C33B52]' />
 							<Input
 								placeholder='Search slot calls...'
-								className='pl-9'
+								className='pl-9 bg-[#191F3B] border border-[#EA8105] text-white placeholder:text-[#C33B52]'
 								value={searchQuery}
 								onChange={(e) => setSearchQuery(e.target.value)}
 							/>
 						</div>
 
 						<div className='flex items-center gap-2'>
-							<Filter className='w-4 h-4 text-muted-foreground' />
+							<Filter className='w-4 h-4 text-[#C33B52]' />
 							<Tabs
 								defaultValue='all'
 								onValueChange={(val) => setFilter(val as FilterStatus)}
+								className='bg-[#191F3B] border border-[#EA8105] rounded-md'
 							>
 								<TabsList>
-									<TabsTrigger value='all'>All</TabsTrigger>
-									<TabsTrigger value='pending'>Pending</TabsTrigger>
-									<TabsTrigger value='accepted'>Accepted</TabsTrigger>
-									<TabsTrigger value='rejected'>Rejected</TabsTrigger>
+									<TabsTrigger
+										value='all'
+										className='text-[#EA8105] hover:bg-[#EA8105] hover:text-white'
+									>
+										All
+									</TabsTrigger>
+									<TabsTrigger
+										value='pending'
+										className='text-[#EA8105] hover:bg-[#EA8105] hover:text-white'
+									>
+										Pending
+									</TabsTrigger>
+									<TabsTrigger
+										value='accepted'
+										className='text-[#EA8105] hover:bg-[#EA8105] hover:text-white'
+									>
+										Accepted
+									</TabsTrigger>
+									<TabsTrigger
+										value='rejected'
+										className='text-[#EA8105] hover:bg-[#EA8105] hover:text-white'
+									>
+										Rejected
+									</TabsTrigger>
 								</TabsList>
 							</Tabs>
 						</div>
@@ -275,7 +307,7 @@ function SlotCallsPage() {
 								slotName={slotCall.slotName}
 								requester={slotCall.requester}
 								betAmount={slotCall.betAmount}
-								timestamp={slotCall.timestamp} // <-- pass timestamp here (optional)
+								timestamp={slotCall.timestamp}
 								status={slotCall.status}
 								isAdminView={isAdmin}
 								onAccept={

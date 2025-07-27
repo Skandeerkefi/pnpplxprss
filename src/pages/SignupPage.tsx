@@ -1,4 +1,3 @@
-// ✅ SignupPage.tsx
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -60,35 +59,45 @@ function SignupPage() {
 	};
 
 	return (
-		<div className='flex flex-col min-h-screen bg-background'>
+		<div className='flex flex-col min-h-screen bg-[#191F3B] text-white'>
 			<Navbar />
+
 			<main className='container flex items-center justify-center flex-grow py-12'>
-				<Card className='w-full max-w-md glass-card'>
+				<Card className='w-full max-w-md bg-[#191F3B] border border-[#EA8105]/40 text-white shadow-md rounded-xl'>
 					<CardHeader className='space-y-1'>
 						<div className='flex items-center justify-center gap-2 mb-2'>
-							<UserPlus className='w-6 h-6 text-secondary' />
-							<CardTitle className='text-2xl'>Create an Account</CardTitle>
+							<UserPlus className='w-6 h-6 text-[#38BDF8]' />
+							<CardTitle className='text-2xl text-[#EA8105]'>
+								Create an Account
+							</CardTitle>
 						</div>
-						<CardDescription className='text-center'>
+						<CardDescription className='text-center text-[#ffffff]'>
 							Enter your Kick username to register and join the community
 						</CardDescription>
 					</CardHeader>
 
 					<form onSubmit={handleSubmit}>
 						<CardContent className='space-y-4'>
+							{/* Username */}
 							<div className='space-y-2'>
-								<Label htmlFor='username'>Kick Username</Label>
+								<Label htmlFor='username' className='text-[#EA8105]'>
+									Kick Username
+								</Label>
 								<Input
 									id='username'
 									placeholder='Enter your Kick username'
 									value={username}
 									onChange={(e) => setUsername(e.target.value)}
 									required
+									className='bg-[#191F3B] border border-[#EA8105] text-white placeholder:text-[#ffffff]'
 								/>
 							</div>
 
+							{/* Password */}
 							<div className='space-y-2'>
-								<Label htmlFor='password'>Password</Label>
+								<Label htmlFor='password' className='text-[#EA8105]'>
+									Password
+								</Label>
 								<Input
 									id='password'
 									type='password'
@@ -99,11 +108,15 @@ function SignupPage() {
 										setPasswordError("");
 									}}
 									required
+									className='bg-[#191F3B] border border-[#EA8105] text-white placeholder:text-[#ffffff]'
 								/>
 							</div>
 
+							{/* Confirm Password */}
 							<div className='space-y-2'>
-								<Label htmlFor='confirmPassword'>Confirm Password</Label>
+								<Label htmlFor='confirmPassword' className='text-[#EA8105]'>
+									Confirm Password
+								</Label>
 								<Input
 									id='confirmPassword'
 									type='password'
@@ -114,12 +127,14 @@ function SignupPage() {
 										setPasswordError("");
 									}}
 									required
+									className='bg-[#191F3B] border border-[#EA8105] text-white placeholder:text-[#ffffff]'
 								/>
 								{passwordError && (
-									<p className='mt-1 text-xs text-red-500'>{passwordError}</p>
+									<p className='mt-1 text-xs text-[#AF2D03]'>{passwordError}</p>
 								)}
 							</div>
 
+							{/* Terms Agreement */}
 							<div className='flex items-center space-x-2'>
 								<Checkbox
 									id='terms'
@@ -127,17 +142,21 @@ function SignupPage() {
 									onCheckedChange={(checked) =>
 										setAgreedToTerms(checked as boolean)
 									}
+									className='border-[#EA8105]'
 								/>
 								<label
 									htmlFor='terms'
-									className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+									className='text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
 								>
 									I agree to the{" "}
-									<Link to='/terms' className='text-primary hover:underline'>
+									<Link to='/terms' className='text-[#EA8105] hover:underline'>
 										Terms of Service
 									</Link>{" "}
 									and{" "}
-									<Link to='/privacy' className='text-primary hover:underline'>
+									<Link
+										to='/privacy'
+										className='text-[#EA8105] hover:underline'
+									>
 										Privacy Policy
 									</Link>
 								</label>
@@ -147,15 +166,15 @@ function SignupPage() {
 						<CardFooter className='flex flex-col space-y-4'>
 							<Button
 								type='submit'
-								className='w-full'
+								className='w-full bg-[#EA8105] hover:bg-[#C33B52] text-white'
 								disabled={isLoading || !agreedToTerms}
 							>
 								{isLoading ? "Creating Account..." : "Create Account"}
 							</Button>
 
-							<div className='text-sm text-center'>
+							<div className='text-sm text-center text-[#C33B52]'>
 								Already have an account?{" "}
-								<Link to='/login' className='text-primary hover:underline'>
+								<Link to='/login' className='text-[#EA8105] hover:underline'>
 									Sign In
 								</Link>
 							</div>
@@ -163,6 +182,7 @@ function SignupPage() {
 					</form>
 				</Card>
 			</main>
+
 			<Footer />
 		</div>
 	);
