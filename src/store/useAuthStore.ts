@@ -41,11 +41,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
 	login: async (kickUsername, password) => {
 		try {
-			const res = await fetch("http://localhost:3000/api/auth/login", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ kickUsername, password }),
-			});
+			const res = await fetch(
+				"https://pnpplxprssdata.onrender.com/api/auth/login",
+				{
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ kickUsername, password }),
+				}
+			);
 
 			if (!res.ok) {
 				const data = await res.json();
@@ -73,11 +76,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	signup: async (kickUsername, password, confirmPassword) => {
 		set({ isLoading: true });
 		try {
-			const res = await fetch("http://localhost:3000/api/auth/register", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ kickUsername, password, confirmPassword }),
-			});
+			const res = await fetch(
+				"https://pnpplxprssdata.onrender.com/api/auth/register",
+				{
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ kickUsername, password, confirmPassword }),
+				}
+			);
 
 			if (!res.ok) {
 				const data = await res.json();

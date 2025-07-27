@@ -36,15 +36,18 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 
 		set({ isSubmitting: true });
 		try {
-			const res = await fetch("http://localhost:3000/api/slot-calls", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
-				body: JSON.stringify({ name: slotName, betAmount }),
-				credentials: "include",
-			});
+			const res = await fetch(
+				"https://pnpplxprssdata.onrender.com/api/slot-calls",
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+					body: JSON.stringify({ name: slotName, betAmount }),
+					credentials: "include",
+				}
+			);
 
 			if (!res.ok) {
 				const data = await res.json();
@@ -81,7 +84,7 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 
 		try {
 			const res = await fetch(
-				`http://localhost:3000/api/slot-calls/${id}/status`,
+				`https://pnpplxprssdata.onrender.com/api/slot-calls/${id}/status`,
 				{
 					method: "POST", // Changed from PATCH to POST
 					headers: {
@@ -126,8 +129,8 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 
 		const url =
 			userRole === "admin"
-				? "http://localhost:3000/api/slot-calls"
-				: "http://localhost:3000/api/slot-calls/my";
+				? "https://pnpplxprssdata.onrender.com/api/slot-calls"
+				: "https://pnpplxprssdata.onrender.com/api/slot-calls/my";
 
 		try {
 			const res = await fetch(url, {
