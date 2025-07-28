@@ -20,6 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 
 function SignupPage() {
 	const [username, setUsername] = useState("");
+	const [rainbetUsername, setRainbetUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -31,7 +32,7 @@ function SignupPage() {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		if (!username || !password) return;
+		if (!username || !rainbetUsername || !password || !confirmPassword) return;
 
 		if (password !== confirmPassword) {
 			setPasswordError("Passwords do not match");
@@ -41,7 +42,12 @@ function SignupPage() {
 		if (!agreedToTerms) return;
 
 		try {
-			const success = await signup(username, password, confirmPassword);
+			const success = await signup(
+				username,
+				rainbetUsername,
+				password,
+				confirmPassword
+			);
 			if (success) {
 				toast({
 					title: "Account Created",
@@ -72,13 +78,14 @@ function SignupPage() {
 							</CardTitle>
 						</div>
 						<CardDescription className='text-center text-[#ffffff]'>
-							Enter your Kick username to register and join the community
+							Enter your Kick and Rainbet usernames to register and join the
+							community
 						</CardDescription>
 					</CardHeader>
 
 					<form onSubmit={handleSubmit}>
 						<CardContent className='space-y-4'>
-							{/* Username */}
+							{/* Kick Username */}
 							<div className='space-y-2'>
 								<Label htmlFor='username' className='text-[#EA8105]'>
 									Kick Username
@@ -88,6 +95,21 @@ function SignupPage() {
 									placeholder='Enter your Kick username'
 									value={username}
 									onChange={(e) => setUsername(e.target.value)}
+									required
+									className='bg-[#191F3B] border border-[#EA8105] text-white placeholder:text-[#ffffff]'
+								/>
+							</div>
+
+							{/* Rainbet Username */}
+							<div className='space-y-2'>
+								<Label htmlFor='rainbetUsername' className='text-[#EA8105]'>
+									Rainbet Username
+								</Label>
+								<Input
+									id='rainbetUsername'
+									placeholder='Enter your Rainbet username'
+									value={rainbetUsername}
+									onChange={(e) => setRainbetUsername(e.target.value)}
 									required
 									className='bg-[#191F3B] border border-[#EA8105] text-white placeholder:text-[#ffffff]'
 								/>

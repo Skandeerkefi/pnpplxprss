@@ -3,6 +3,7 @@ import { create } from "zustand";
 interface User {
 	id: string;
 	kickUsername: string;
+	rainbetUsername: string; // add this
 	role: string; // "user" or "admin"
 }
 
@@ -22,6 +23,7 @@ interface AuthState {
 
 	signup: (
 		kickUsername: string,
+		rainbetUsername: string,
 		password: string,
 		confirmPassword: string
 	) => Promise<boolean>;
@@ -42,6 +44,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	login: async (kickUsername, password) => {
 		try {
 			const res = await fetch(
+				// "https://pnpplxprssdata.onrender.com/api/auth/login"
 				"https://pnpplxprssdata.onrender.com/api/auth/login",
 				{
 					method: "POST",
@@ -73,7 +76,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		}
 	},
 
-	signup: async (kickUsername, password, confirmPassword) => {
+	signup: async (kickUsername, rainbetUsername, password, confirmPassword) => {
 		set({ isLoading: true });
 		try {
 			const res = await fetch(
@@ -81,7 +84,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ kickUsername, password, confirmPassword }),
+					body: JSON.stringify({
+						kickUsername,
+						rainbetUsername,
+						password,
+						confirmPassword,
+					}),
 				}
 			);
 
