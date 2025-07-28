@@ -2,17 +2,22 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dices, Crown, Gift, Users, LogIn, User, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
+import useMediaQuery from "@/hooks/use-media-query";
 import { useAuthStore } from "@/store/useAuthStore";
 
 export function Navbar() {
 	const location = useLocation();
-	const isMobile = useIsMobile();
+	const isMobile = useMediaQuery("(max-width: 768px)"); // Using tailwind's md breakpoint
 	const [isOpen, setIsOpen] = useState(false);
 	const [isLive, setIsLive] = useState(false);
 	const [viewerCount, setViewerCount] = useState<number | null>(null);
 
 	const { user, logout } = useAuthStore();
+
+	// Close mobile menu when navigating or when viewport changes
+	useEffect(() => {
+		setIsOpen(false);
+	}, [location, isMobile]);
 
 	useEffect(() => {
 		const fetchLiveStatus = async () => {
@@ -83,77 +88,75 @@ export function Navbar() {
 					)}
 				</div>
 
-				{/* Desktop Navigation */}
-				{!isMobile && (
-					<div className='flex items-center gap-6'>
-						{/* Menu Links */}
-						<div className='flex items-center gap-3'>
-							{menuItems.map((item) => (
-								<Link
-									key={item.path}
-									to={item.path}
-									className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-										location.pathname === item.path
-											? "bg-[#AF2D03] text-white shadow-md"
-											: "text-[#ffffff] hover:bg-[#EA8105] hover:text-white"
-									}`}
-								>
-									{item.icon}
-									{item.name}
-								</Link>
-							))}
-						</div>
-
-						{/* Auth Buttons */}
-						<div className='flex items-center gap-3'>
-							{user ? (
-								<>
-									<Button variant='ghost' size='sm' asChild>
-										<Link
-											to='/'
-											className='flex items-center gap-1 font-semibold text-white'
-										>
-											<User className='w-4 h-4' />
-											{user.username}
-										</Link>
-									</Button>
-									<Button
-										variant='outline'
-										size='sm'
-										onClick={logout}
-										className='border-white text-white hover:bg-[#AF2D03] hover:border-[#AF2D03]'
-									>
-										<LogOut className='w-4 h-4 mr-1' />
-										Logout
-									</Button>
-								</>
-							) : (
-								<>
-									<Button
-										variant='outline'
-										size='sm'
-										asChild
-										className='border-white text-[#ffffff] hover:bg-[#EA8105] hover:border-[#EA8105]'
-									>
-										<Link to='/login' className='flex items-center'>
-											<LogIn className='w-4 h-4 mr-1' />
-											Login
-										</Link>
-									</Button>
-									<Button
-										size='sm'
-										asChild
-										className='text-[#ffffff] hover:text-[#EA8105] font-semibold'
-									>
-										<Link to='/signup'>Sign Up</Link>
-									</Button>
-								</>
-							)}
-						</div>
+				{/* Desktop Navigation - Only show when NOT mobile */}
+				<div className={`${isMobile ? "hidden" : "flex items-center gap-6"}`}>
+					{/* Menu Links */}
+					<div className='flex items-center gap-3'>
+						{menuItems.map((item) => (
+							<Link
+								key={item.path}
+								to={item.path}
+								className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+									location.pathname === item.path
+										? "bg-[#AF2D03] text-white shadow-md"
+										: "text-[#ffffff] hover:bg-[#EA8105] hover:text-white"
+								}`}
+							>
+								{item.icon}
+								{item.name}
+							</Link>
+						))}
 					</div>
-				)}
 
-				{/* Mobile Nav Toggle */}
+					{/* Auth Buttons */}
+					<div className='flex items-center gap-3'>
+						{user ? (
+							<>
+								<Button variant='ghost' size='sm' asChild>
+									<Link
+										to='/'
+										className='flex items-center gap-1 font-semibold text-white'
+									>
+										<User className='w-4 h-4' />
+										{user.username}
+									</Link>
+								</Button>
+								<Button
+									variant='outline'
+									size='sm'
+									onClick={logout}
+									className='border-white text-white hover:bg-[#AF2D03] hover:border-[#AF2D03]'
+								>
+									<LogOut className='w-4 h-4 mr-1' />
+									Logout
+								</Button>
+							</>
+						) : (
+							<>
+								<Button
+									variant='outline'
+									size='sm'
+									asChild
+									className='border-white text-[#ffffff] hover:bg-[#EA8105] hover:border-[#EA8105]'
+								>
+									<Link to='/login' className='flex items-center'>
+										<LogIn className='w-4 h-4 mr-1' />
+										Login
+									</Link>
+								</Button>
+								<Button
+									size='sm'
+									asChild
+									className='text-[#ffffff] hover:text-[#EA8105] font-semibold'
+								>
+									<Link to='/signup'>Sign Up</Link>
+								</Button>
+							</>
+						)}
+					</div>
+				</div>
+
+				{/* Mobile Nav Toggle - Only show when mobile */}
 				{isMobile && (
 					<button
 						className='p-2 rounded-md hover:bg-[#EA8105]/30 focus:outline-none focus:ring-2 focus:ring-[#EA8105]'
@@ -182,7 +185,7 @@ export function Navbar() {
 				)}
 			</div>
 
-			{/* Mobile Menu */}
+			{/* Mobile Menu - Only show when mobile and open */}
 			{isMobile && (
 				<div
 					className={`container mx-auto overflow-hidden transition-all duration-300 ease-in-out ${
