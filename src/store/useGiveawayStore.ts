@@ -62,7 +62,7 @@ export const useGiveawayStore = create<GiveawayState>((set, get) => ({
 		} catch {
 			toast({
 				title: "Error",
-				description: "You already joined or something went wrong",
+				description: "You Should Wager to enter GW",
 				variant: "destructive",
 			});
 		}
