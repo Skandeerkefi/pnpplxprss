@@ -47,7 +47,7 @@ function SignupPage() {
 					title: "Account Created",
 					description: "Your account has been created successfully!",
 				});
-				navigate("/");
+				navigate("/login");
 			}
 		} catch (error: any) {
 			toast({
