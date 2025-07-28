@@ -26,9 +26,10 @@ interface LeaderboardTableProps {
 // 💸 Prize mappings for all periods
 const PRIZES: Record<LeaderboardPeriod, Record<number, number>> = {
 	weekly: {
-		1: 50,
-		2: 25,
-		3: 15,
+		1: 100,
+		2: 50,
+		3: 30,
+		4: 20,
 	},
 	biweekly: {
 		1: 100,
@@ -37,11 +38,10 @@ const PRIZES: Record<LeaderboardPeriod, Record<number, number>> = {
 		4: 20,
 	},
 	monthly: {
-		1: 200,
-		2: 100,
-		3: 50,
-		4: 30,
-		5: 20,
+		1: 100,
+		2: 50,
+		3: 30,
+		4: 20,
 	},
 };
 

@@ -5,6 +5,8 @@ import { LeaderboardTable } from "@/components/LeaderboardTable";
 import {
 	useLeaderboardStore,
 	LeaderboardPeriod,
+	getCurrentBiweeklyRange,
+	LeaderboardPlayer,
 } from "@/store/useLeaderboardStore";
 import { Crown, Info, Loader2, Trophy, Award, Medal } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,6 +25,8 @@ function LeaderboardPage() {
 	useEffect(() => {
 		fetchLeaderboard("biweekly");
 	}, [fetchLeaderboard]);
+
+	const { start_at, end_at } = getCurrentBiweeklyRange();
 
 	return (
 		<div className='flex flex-col min-h-screen bg-[#191F3B] text-white'>
@@ -145,10 +149,13 @@ function LeaderboardPage() {
 
 				{/* Leaderboard Table */}
 				<div>
-					<div className='flex justify-center mb-4'>
+					<div className='flex flex-col items-center justify-center mb-4'>
 						<h2 className='text-xl font-semibold text-center text-[#ffffff] border-2 border-[#38BDF8] rounded-md py-2 px-6 inline-block'>
 							Biweekly Leaderboard
 						</h2>
+						<p className='mt-2 text-sm text-[#EA6D0C]'>
+							Period: {start_at} → {end_at}
+						</p>
 					</div>
 					{isLoading ? (
 						<div className='flex items-center justify-center h-64'>

@@ -26,6 +26,28 @@ const getDateRange = (
 	period: LeaderboardPeriod
 ): { start_at: string; end_at: string } => {
 	const now = new Date();
+
+	if (period === "biweekly") {
+		const firstStart = new Date("2025-07-20T00:00:00Z");
+		const msInDay = 1000 * 60 * 60 * 24;
+		const daysSinceStart = Math.floor(
+			(now.getTime() - firstStart.getTime()) / msInDay
+		);
+		const currentCycle = Math.floor(daysSinceStart / 14);
+
+		const startDate = new Date(firstStart);
+		startDate.setDate(firstStart.getDate() + currentCycle * 14);
+
+		const endDate = new Date(startDate);
+		endDate.setDate(startDate.getDate() + 13); // 14-day range
+
+		return {
+			start_at: startDate.toISOString().split("T")[0],
+			end_at: endDate.toISOString().split("T")[0],
+		};
+	}
+
+	// Default logic for weekly and monthly
 	const endDate = new Date(now);
 	endDate.setHours(23, 59, 59, 999);
 
@@ -33,9 +55,7 @@ const getDateRange = (
 
 	if (period === "weekly") {
 		startDate.setDate(now.getDate() - 7);
-	} else if (period === "biweekly") {
-		startDate.setDate(now.getDate() - 14);
-	} else {
+	} else if (period === "monthly") {
 		startDate.setFullYear(now.getFullYear(), now.getMonth(), 1);
 	}
 
@@ -113,3 +133,27 @@ export const useLeaderboardStore = create<LeaderboardState>((set, get) => ({
 		}
 	},
 }));
+
+export const getCurrentBiweeklyRange = (): {
+	start_at: string;
+	end_at: string;
+} => {
+	const now = new Date();
+	const firstStart = new Date("2025-07-20T00:00:00Z");
+	const msInDay = 1000 * 60 * 60 * 24;
+	const daysSinceStart = Math.floor(
+		(now.getTime() - firstStart.getTime()) / msInDay
+	);
+	const currentCycle = Math.floor(daysSinceStart / 14);
+
+	const startDate = new Date(firstStart);
+	startDate.setDate(firstStart.getDate() + currentCycle * 14);
+
+	const endDate = new Date(startDate);
+	endDate.setDate(startDate.getDate() + 13);
+
+	return {
+		start_at: startDate.toISOString().split("T")[0],
+		end_at: endDate.toISOString().split("T")[0],
+	};
+};
