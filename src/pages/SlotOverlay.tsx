@@ -7,12 +7,38 @@ export default function SlotOverlay() {
 	const [visibleCalls, setVisibleCalls] = useState<any[]>([]);
 
 	useEffect(() => {
-		const interval = setInterval(() => {
-			fetchSlotCalls();
-		}, 5000); // fetch every 5 seconds
-		fetchSlotCalls();
+		const fetchOverlayCalls = async () => {
+			try {
+				const res = await fetch(
+					"https://pnpplxprssdata.onrender.com/api/slot-calls",
+					{
+						headers: {
+							Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ODdiMjlkNjgwYWE1MzZmOTdiYjI1NCIsInJvbGUiOiJhZG1pbiIsImtpY2tVc2VybmFtZSI6IlBucHBsWHByc3MiLCJpYXQiOjE3NTM3NTA1OTEsImV4cCI6MTc1NDM1NTM5MX0.X3_40SkuhaOEXZzC-YAFMrRCCs0PcwFmDDLYhx2Kaic
+`, // 👈 inject admin token
+						},
+					}
+				);
+				const data = await res.json();
+				const accepted = data
+					.filter((call: any) => call.status === "accepted")
+					.slice(0, 3)
+					.map((call: any) => ({
+						id: call._id,
+						slotName: call.name,
+						betAmount: call.betAmount,
+						requester: call.user?.kickUsername || "Unknown",
+					}));
+
+				setVisibleCalls(accepted);
+			} catch (err) {
+				console.error("Overlay fetch failed:", err);
+			}
+		};
+
+		fetchOverlayCalls();
+		const interval = setInterval(fetchOverlayCalls, 5000);
 		return () => clearInterval(interval);
-	}, [fetchSlotCalls]);
+	}, []);
 
 	useEffect(() => {
 		const accepted = slotCalls.filter((call) => call.status === "accepted");
@@ -21,7 +47,7 @@ export default function SlotOverlay() {
 
 	return (
 		<div
-			className='w-screen h-screen overflow-hidden bg-transparent flex flex-col items-center justify-end pb-10 space-y-4'
+			className='flex flex-col items-center justify-end w-screen h-screen pb-10 space-y-4 overflow-hidden bg-transparent'
 			style={{ pointerEvents: "none" }}
 		>
 			{visibleCalls.map((call) => (
