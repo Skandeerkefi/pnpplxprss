@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { SlotCallCard } from "@/components/SlotCallCard";
 import { useSlotCallStore } from "@/store/useSlotCallStore";
-import { Dices, Plus, Search, Filter } from "lucide-react";
+import { Plus, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,42 +22,12 @@ import { useDebounce } from "@/hooks/use-debounce";
 
 type FilterStatus = "all" | "pending" | "accepted" | "rejected";
 
-const EmptyState = ({
-	searchQuery,
-	filter,
-}: {
-	searchQuery: string;
-	filter: FilterStatus;
-}) => (
-	<div className='py-12 text-center text-[#C33B52]'>
-		<Dices className='w-16 h-16 mx-auto mb-4 text-[#38BDF8]' />
-		<h2 className='mb-2 text-2xl font-bold text-[#EA8105]'>
-			No Slot Calls Found
-		</h2>
-		<p>
-			{searchQuery || filter !== "all"
-				? "Try different filters or search terms."
-				: "Be the first to request a slot!"}
-		</p>
-	</div>
-);
-
-const LoadingSkeleton = () => (
-	<div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-		{[...Array(3)].map((_, i) => (
-			<div
-				key={i}
-				className='h-64 rounded-lg animate-pulse bg-gradient-to-r from-[#191F3B] to-[#38BDF8]/20'
-			/>
-		))}
-	</div>
-);
-
 function SlotCallsPage() {
 	const {
 		slotCalls,
 		addSlotCall,
 		updateSlotStatus,
+		submitBonusCall,
 		fetchSlotCalls,
 		isSubmitting,
 	} = useSlotCallStore();
@@ -67,7 +37,6 @@ function SlotCallsPage() {
 
 	const [searchQuery, setSearchQuery] = useState("");
 	const [slotName, setSlotName] = useState("");
-	const [betAmount, setBetAmount] = useState<number>(100);
 	const [filter, setFilter] = useState<FilterStatus>("all");
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -76,79 +45,56 @@ function SlotCallsPage() {
 
 	useEffect(() => {
 		if (token) {
-			const loadData = async () => {
-				try {
-					await fetchSlotCalls();
-				} catch {
-					toast({
-						title: "Error",
-						description: "Failed to fetch slot calls",
-						variant: "destructive",
-					});
-				} finally {
-					setIsLoading(false);
-				}
-			};
-			loadData();
+			fetchSlotCalls().finally(() => setIsLoading(false));
 		} else {
 			setIsLoading(false);
 		}
-	}, [token, fetchSlotCalls, toast]);
+	}, [token]);
 
 	const filteredSlotCalls = useMemo(() => {
 		return slotCalls.filter((call) => {
-			const slotNameLower = (call.slotName || "").toLowerCase();
-			const requesterLower = (call.requester || "").toLowerCase();
-			const queryLower = debouncedSearchQuery.toLowerCase();
-
+			const query = debouncedSearchQuery.toLowerCase();
 			const matchesSearch =
-				slotNameLower.includes(queryLower) ||
-				requesterLower.includes(queryLower);
-
+				call.slotName.toLowerCase().includes(query) ||
+				call.requester.toLowerCase().includes(query);
 			if (filter === "all") return matchesSearch;
 			return matchesSearch && call.status === filter;
 		});
 	}, [slotCalls, debouncedSearchQuery, filter]);
 
 	const handleSubmit = async () => {
-		if (!slotName || betAmount <= 0) {
+		if (!slotName.trim()) {
 			toast({
 				title: "Error",
-				description: "Please fill out all fields with valid data.",
+				description: "Slot name is required.",
 				variant: "destructive",
 			});
 			return;
 		}
 
-		try {
-			const result = await addSlotCall(slotName, betAmount);
-			if (result.success) {
-				toast({
-					title: "Slot Call Submitted",
-					description: "Your slot call has been submitted for review.",
-				});
-				setSlotName("");
-				setBetAmount(100);
-				await fetchSlotCalls();
-			}
-		} catch (error: any) {
+		const result = await addSlotCall(slotName.trim());
+		if (result.success) {
+			toast({ title: "Submitted", description: "Slot call sent!" });
+			setSlotName("");
+			await fetchSlotCalls();
+		} else {
 			toast({
 				title: "Error",
-				description: error.message || "Something went wrong.",
+				description: result.error || "Something went wrong.",
 				variant: "destructive",
 			});
 		}
 	};
 
-	const handleAccept = async (id: string) => {
-		const result = await updateSlotStatus(id, "accepted");
+	const handleAccept = async (id: string, newX250Value: boolean) => {
+		const result = await updateSlotStatus(id, "accepted", newX250Value);
 		if (result.success) {
-			toast({ title: "Accepted", description: "Slot call accepted." });
+			toast({ title: "Updated", description: "Slot status updated." });
 			await fetchSlotCalls();
 		} else {
 			toast({
 				title: "Error",
-				description: result.error || "Failed to accept slot call",
+				description: result.error || "Failed to update slot",
 				variant: "destructive",
 			});
 		}
@@ -168,71 +114,62 @@ function SlotCallsPage() {
 		}
 	};
 
+	const handleBonusSubmit = async (id: string, slotName: string) => {
+		const result = await submitBonusCall(id, slotName);
+		if (result.success) {
+			toast({
+				title: "Bonus Call Submitted",
+				description: "Your $20 bonus call has been recorded.",
+			});
+			await fetchSlotCalls();
+		} else {
+			toast({
+				title: "Error",
+				description: result.error || "Failed to submit bonus call",
+				variant: "destructive",
+			});
+		}
+	};
+
 	return (
 		<div className='flex flex-col min-h-screen bg-[#191F3B] text-white'>
 			<Navbar />
-
 			<main className='container flex-grow py-8'>
-				<div className='flex flex-col gap-4 mb-8 md:flex-row md:items-center md:justify-between'>
-					<div className='flex items-center gap-2'>
-						<Dices className='w-6 h-6 text-[#38BDF8]' />
-						<h1 className='text-3xl font-bold text-white'>Slot Calls</h1>
-					</div>
-
+				<div className='flex items-center justify-between mb-6'>
+					<h1 className='text-3xl font-bold text-white'>Slot Calls</h1>
 					{!isAdmin && (
 						<Dialog>
 							<DialogTrigger asChild>
 								<Button className='bg-[#EA8105] hover:bg-[#C33B52] text-white'>
-									<Plus className='w-4 h-4 mr-1' /> Request Slot Call
+									<Plus className='w-4 h-4 mr-1' /> Request Slot
 								</Button>
 							</DialogTrigger>
-							<DialogContent className='bg-[#191F3B] text-white border border-[#EA8105]/40 rounded-lg'>
+							<DialogContent className='bg-[#191F3B] text-white border border-[#EA6D0C]/40 rounded-lg'>
 								<DialogHeader>
-									<DialogTitle>Request a Slot Call</DialogTitle>
+									<DialogTitle>Request a Slot</DialogTitle>
 									<DialogDescription>
-										Suggest a slot for pnpplxprss to play during stream.
+										Ask pnpplxprss to play a slot live on stream.
 									</DialogDescription>
 								</DialogHeader>
-
-								<div className='py-4 space-y-4'>
-									<div className='space-y-2'>
-										<label htmlFor='slotName' className='text-sm font-medium'>
-											Slot Name
-										</label>
-										<Input
-											id='slotName'
-											placeholder='e.g. Gates of Olympus'
-											value={slotName}
-											onChange={(e) => setSlotName(e.target.value)}
-											className='bg-[#191F3B] border border-[#EA8105] text-white placeholder:text-[#C33B52]'
-										/>
-									</div>
-									<div className='space-y-2'>
-										<label htmlFor='betAmount' className='text-sm font-medium'>
-											Bet Amount ($)
-										</label>
-										<Input
-											id='betAmount'
-											type='number'
-											min='50'
-											step='50'
-											placeholder='100'
-											value={betAmount}
-											onChange={(e) =>
-												setBetAmount(parseInt(e.target.value) || 100)
-											}
-											className='bg-[#191F3B] border border-[#EA8105] text-white placeholder:text-[#C33B52]'
-										/>
-									</div>
+								<div className='py-4'>
+									<label htmlFor='slotName' className='block mb-2 text-sm'>
+										Slot Name
+									</label>
+									<Input
+										id='slotName'
+										placeholder='e.g. Wanted Dead or a Wild'
+										value={slotName}
+										onChange={(e) => setSlotName(e.target.value)}
+										className='bg-[#191F3B] border border-[#EA6D0C] text-white'
+									/>
 								</div>
-
 								<DialogFooter>
 									<Button
 										onClick={handleSubmit}
 										disabled={isSubmitting}
-										className='bg-[#EA8105] hover:bg-[#C33B52] text-white'
+										className='bg-[#EA8105] hover:bg-[#C33B52]'
 									>
-										{isSubmitting ? "Submitting..." : "Submit Request"}
+										{isSubmitting ? "Submitting..." : "Submit"}
 									</Button>
 								</DialogFooter>
 							</DialogContent>
@@ -240,98 +177,55 @@ function SlotCallsPage() {
 					)}
 				</div>
 
-				<div className='p-6 mb-8 rounded-lg glass-card bg-[#191F3B] border border-[#EA8105]/40'>
-					<p className='mb-6 text-[#ffffff]'>
-						{isAdmin
-							? "Review and manage slot call requests submitted by users."
-							: "Request pnpplxprss to play your favorite slots during his streams!"}
-					</p>
-
-					<div className='flex flex-col gap-4 md:flex-row'>
-						<div className='relative flex-1'>
-							<Search className='absolute w-4 h-4 transform -translate-y-1/2 left-3 top-1/2 text-[#C33B52]' />
-							<Input
-								placeholder='Search slot calls...'
-								className='pl-9 bg-[#191F3B] border border-[#EA8105] text-white placeholder:text-[#C33B52]'
-								value={searchQuery}
-								onChange={(e) => setSearchQuery(e.target.value)}
-							/>
-						</div>
-
-						<div className='flex items-center gap-2'>
-							<Filter className='w-4 h-4 text-[#C33B52]' />
-							<Tabs
-								defaultValue='all'
-								onValueChange={(val) => setFilter(val as FilterStatus)}
-								className='bg-[#191F3B] border border-[#EA8105] rounded-md'
-							>
-								<TabsList>
+				<div className='flex flex-col items-center gap-4 mb-4 md:flex-row'>
+					<div className='relative w-full md:w-1/2'>
+						<Search className='absolute w-4 h-4 left-3 top-1/2 transform -translate-y-1/2 text-[#C33B52]' />
+						<Input
+							placeholder='Search slot calls...'
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+							className='pl-9 bg-[#191F3B] border border-[#EA6D0C] text-white'
+						/>
+					</div>
+					<div className='flex items-center gap-2'>
+						<Filter className='w-4 h-4 text-[#C33B52]' />
+						<Tabs onValueChange={(val) => setFilter(val as FilterStatus)}>
+							<TabsList>
+								{["all", "pending", "accepted", "rejected"].map((f) => (
 									<TabsTrigger
-										value='all'
-										className='text-[#EA8105] hover:bg-[#EA8105] hover:text-white'
+										key={f}
+										value={f}
+										className='text-[#EA6D0C] hover:bg-[#EA6D0C] hover:text-white'
 									>
-										All
+										{f.charAt(0).toUpperCase() + f.slice(1)}
 									</TabsTrigger>
-									<TabsTrigger
-										value='pending'
-										className='text-[#EA8105] hover:bg-[#EA8105] hover:text-white'
-									>
-										Pending
-									</TabsTrigger>
-									<TabsTrigger
-										value='accepted'
-										className='text-[#EA8105] hover:bg-[#EA8105] hover:text-white'
-									>
-										Accepted
-									</TabsTrigger>
-									<TabsTrigger
-										value='rejected'
-										className='text-[#EA8105] hover:bg-[#EA8105] hover:text-white'
-									>
-										Rejected
-									</TabsTrigger>
-								</TabsList>
-							</Tabs>
-						</div>
+								))}
+							</TabsList>
+						</Tabs>
 					</div>
 				</div>
 
-				{isLoading ? (
-					<LoadingSkeleton />
-				) : filteredSlotCalls.length > 0 ? (
-					<div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-						{filteredSlotCalls.map((slotCall) => (
+				<div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
+					{!isLoading &&
+						filteredSlotCalls.map((call) => (
 							<SlotCallCard
-								key={slotCall.id}
-								id={slotCall.id}
-								slotName={slotCall.slotName}
-								requester={slotCall.requester}
-								betAmount={slotCall.betAmount}
-								timestamp={slotCall.timestamp}
-								status={slotCall.status}
+								key={call.id}
+								id={call.id}
+								slotName={call.slotName}
+								requester={call.requester}
+								timestamp={call.timestamp}
+								status={call.status}
+								x250Hit={call.x250Hit}
+								bonusCall={call.bonusCall}
 								isAdminView={isAdmin}
-								onAccept={
-									isAdmin
-										? () =>
-												confirm("Accept this slot call?") &&
-												handleAccept(slotCall.id)
-										: undefined
-								}
-								onReject={
-									isAdmin
-										? () =>
-												confirm("Reject this slot call?") &&
-												handleReject(slotCall.id)
-										: undefined
-								}
+								isUserView={!isAdmin}
+								onAccept={handleAccept}
+								onReject={handleReject}
+								onBonusSubmit={handleBonusSubmit}
 							/>
 						))}
-					</div>
-				) : (
-					<EmptyState searchQuery={searchQuery} filter={filter} />
-				)}
+				</div>
 			</main>
-
 			<Footer />
 		</div>
 	);

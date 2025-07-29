@@ -7,21 +7,26 @@ export interface SlotCall {
 	id: string;
 	slotName: string;
 	requester: string;
-	betAmount: number;
 	timestamp: string;
 	status: SlotCallStatus;
+	x250Hit?: boolean;
+	bonusCall?: { name: string; createdAt: string };
 }
 
 interface SlotCallState {
 	slotCalls: SlotCall[];
 	isSubmitting: boolean;
 	addSlotCall: (
-		slotName: string,
-		betAmount: number
+		slotName: string
+	) => Promise<{ success: boolean; error?: string }>;
+	submitBonusCall: (
+		id: string,
+		slotName: string
 	) => Promise<{ success: boolean; error?: string }>;
 	updateSlotStatus: (
 		id: string,
-		status: SlotCallStatus
+		status: SlotCallStatus,
+		x250Hit?: boolean
 	) => Promise<{ success: boolean; error?: string }>;
 	fetchSlotCalls: () => Promise<void>;
 }
@@ -30,7 +35,7 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 	slotCalls: [],
 	isSubmitting: false,
 
-	addSlotCall: async (slotName, betAmount) => {
+	addSlotCall: async (slotName) => {
 		const token = useAuthStore.getState().token;
 		if (!token) return { success: false, error: "Not authenticated" };
 
@@ -44,7 +49,7 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 						"Content-Type": "application/json",
 						Authorization: `Bearer ${token}`,
 					},
-					body: JSON.stringify({ name: slotName, betAmount }),
+					body: JSON.stringify({ name: slotName }),
 					credentials: "include",
 				}
 			);
@@ -54,7 +59,8 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 				throw new Error(data.message || "Failed to add slot call");
 			}
 
-			const newCall = await res.json();
+			const response = await res.json();
+			const newCall = response.slotCall;
 
 			set((state) => ({
 				slotCalls: [
@@ -62,9 +68,10 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 						id: newCall._id,
 						slotName: newCall.name,
 						requester: useAuthStore.getState().user?.kickUsername || "You",
-						betAmount: newCall.betAmount,
 						timestamp: new Date(newCall.createdAt).toLocaleString(),
 						status: newCall.status,
+						x250Hit: newCall.x250Hit,
+						bonusCall: newCall.bonusCall,
 					},
 					...state.slotCalls,
 				],
@@ -78,7 +85,42 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 		}
 	},
 
-	updateSlotStatus: async (id, status) => {
+	submitBonusCall: async (id, slotName) => {
+		const token = useAuthStore.getState().token;
+		if (!token) return { success: false, error: "Not authenticated" };
+
+		try {
+			const res = await fetch(
+				`https://pnpplxprssdata.onrender.com/api/slot-calls/${id}/bonus-call`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+					body: JSON.stringify({ name: slotName }),
+					credentials: "include",
+				}
+			);
+
+			if (!res.ok) {
+				const data = await res.json();
+				throw new Error(data.message || "Failed to submit bonus call");
+			}
+
+			const updated = (await res.json()).slotCall;
+			set((state) => ({
+				slotCalls: state.slotCalls.map((call) =>
+					call.id === id ? { ...call, bonusCall: updated.bonusCall } : call
+				),
+			}));
+			return { success: true };
+		} catch (error: any) {
+			return { success: false, error: error.message };
+		}
+	},
+
+	updateSlotStatus: async (id, status, x250Hit = false) => {
 		const token = useAuthStore.getState().token;
 		if (!token) return { success: false, error: "Not authenticated" };
 
@@ -86,21 +128,19 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 			const res = await fetch(
 				`https://pnpplxprssdata.onrender.com/api/slot-calls/${id}/status`,
 				{
-					method: "POST", // Changed from PATCH to POST
+					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
 						Authorization: `Bearer ${token}`,
 					},
-					body: JSON.stringify({ status }),
+					body: JSON.stringify({ status, x250Hit }),
 					credentials: "include",
 				}
 			);
 
 			if (!res.ok) {
 				const data = await res.json();
-				throw new Error(
-					data.message || `Failed to update slot call status to ${status}`
-				);
+				throw new Error(data.message || "Failed to update slot call status");
 			}
 
 			const updated = (await res.json()).slotCall;
@@ -111,11 +151,11 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 						? {
 								...call,
 								status: updated.status,
+								x250Hit: updated.x250Hit,
 						  }
 						: call
 				),
 			}));
-
 			return { success: true };
 		} catch (error: any) {
 			return { success: false, error: error.message };
@@ -151,9 +191,10 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 					item.user?.kickUsername ||
 					useAuthStore.getState().user?.kickUsername ||
 					"You",
-				betAmount: item.betAmount,
 				timestamp: new Date(item.createdAt).toLocaleString(),
 				status: item.status,
+				x250Hit: item.x250Hit,
+				bonusCall: item.bonusCall,
 			}));
 
 			set({ slotCalls: mapped });

@@ -44,8 +44,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 	login: async (kickUsername, password) => {
 		try {
 			const res = await fetch(
-				// "https://pnpplxprssdata.onrender.com/api/auth/login"
-				"https://pnpplxprssdata.onrender.com/api/auth/login",
+				"http://localhost:3000/api/auth/login",
+				// "https://pnpplxprssdata.onrender.com/api/auth/login",
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
@@ -80,7 +80,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		set({ isLoading: true });
 		try {
 			const res = await fetch(
-				"https://pnpplxprssdata.onrender.com/api/auth/register",
+				// "https://pnpplxprssdata.onrender.com/api/auth/register",
+				"http://localhost:3000/api/auth/register",
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },

@@ -1,4 +1,5 @@
-import { Clock, Check, X } from "lucide-react";
+import { useState } from "react";
+import { Clock, Check, X, Gift } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export type SlotCallStatus = "pending" | "accepted" | "rejected";
@@ -7,59 +8,114 @@ interface SlotCallProps {
 	id: string;
 	slotName: string;
 	requester: string;
-	betAmount: number;
 	timestamp: string;
 	status: SlotCallStatus;
-	onAccept?: (id: string) => void;
+	x250Hit?: boolean;
+	bonusCall?: { name: string; createdAt: string };
+	onAccept?: (id: string, x250Hit: boolean) => void;
 	onReject?: (id: string) => void;
 	isAdminView?: boolean;
+	isUserView?: boolean;
+	onBonusSubmit?: (id: string, bonusSlot: string) => void;
 }
 
 export function SlotCallCard({
 	id,
 	slotName,
 	requester,
-	betAmount,
 	timestamp,
 	status,
+	x250Hit,
+	bonusCall,
 	onAccept,
 	onReject,
 	isAdminView = false,
+	isUserView = false,
+	onBonusSubmit,
 }: SlotCallProps) {
+	const [x250Checked, setX250Checked] = useState(false);
+	const [bonusInput, setBonusInput] = useState("");
+
+	const showBonusInput = isUserView && x250Hit && !bonusCall;
+
 	return (
-		<div className='flex flex-col p-4 rounded-lg glass-card bg-[#191F3B] border border-[#EA8105]/40 text-white'>
+		<div className='flex flex-col p-4 rounded-lg glass-card bg-[#191F3B] border border-[#EA6D0C]/40 text-white'>
 			<div className='flex items-start justify-between'>
-				<h3 className='text-lg font-bold text-[#fffffe]'>{slotName}</h3>
+				<h3 className='text-lg font-bold text-white'>{slotName}</h3>
 				<StatusBadge status={status} />
 			</div>
 
-			<div className='mt-2 text-sm text-[#EA8105]'>
-				Requested by: <span className='text-[#ffffff]'>{requester}</span>
+			<div className='mt-2 text-sm text-[#EA6D0C]'>
+				Requested by: <span className='text-white'>{requester}</span>
 			</div>
 
-			<span className='text-[#C33B52] mt-1'>
-				${betAmount ? betAmount.toLocaleString() : "0"}
-			</span>
-
-			<div className='flex items-center gap-1 mt-4 text-xs text-[#ffffff]'>
+			<div className='flex items-center gap-1 mt-4 text-xs text-white'>
 				<Clock className='w-3 h-3' />
 				{timestamp}
 			</div>
 
-			{isAdminView && status === "pending" && (
-				<div className='flex gap-2 mt-4'>
-					<button
-						onClick={() => onAccept && onAccept(id)}
-						className='flex items-center justify-center flex-1 gap-1 px-3 py-1 text-sm text-white transition-colors bg-green-600 rounded hover:bg-green-700'
-					>
-						<Check className='w-4 h-4' /> Accept
-					</button>
+			{/* Admin Controls */}
+			{isAdminView && (
+				<div className='mt-4 space-y-2'>
+					<label className='flex items-center gap-2 text-sm text-[#38BDF8]'>
+						<input
+							type='checkbox'
+							checked={x250Hit || false}
+							onChange={() => onAccept?.(id, !x250Hit)} // Send updated value
+						/>
+						Mark as 250x Hit
+					</label>
 
+					{status === "pending" && (
+						<div className='flex gap-2'>
+							<button
+								onClick={() => onAccept?.(id, x250Hit || false)}
+								className='flex items-center justify-center flex-1 gap-1 px-3 py-1 text-sm text-white bg-green-600 rounded hover:bg-green-700'
+							>
+								<Check className='w-4 h-4' /> Accept
+							</button>
+
+							<button
+								onClick={() => onReject?.(id)}
+								className='flex items-center justify-center flex-1 gap-1 px-3 py-1 text-sm text-white bg-red-600 rounded hover:bg-red-700'
+							>
+								<X className='w-4 h-4' /> Reject
+							</button>
+						</div>
+					)}
+				</div>
+			)}
+
+			{/* Bonus Call Submitted */}
+			{bonusCall && (
+				<div className='mt-4 text-sm text-[#38BDF8]'>
+					<Gift className='inline w-4 h-4 mr-1' />
+					Bonus Call:{" "}
+					<span className='font-semibold text-white'>{bonusCall.name}</span>
+				</div>
+			)}
+
+			{/* Bonus Call Submission */}
+			{showBonusInput && (
+				<div className='mt-4 space-y-2'>
+					<label htmlFor={`bonus-${id}`} className='text-sm text-[#EA6D0C]'>
+						🎁 20$ Bonus Call Slot Name
+					</label>
+					<input
+						id={`bonus-${id}`}
+						type='text'
+						placeholder='e.g. Sugar Rush'
+						value={bonusInput}
+						onChange={(e) => setBonusInput(e.target.value)}
+						className='w-full px-3 py-1 bg-[#191F3B] border border-[#EA6D0C] text-white rounded'
+					/>
 					<button
-						onClick={() => onReject && onReject(id)}
-						className='flex items-center justify-center flex-1 gap-1 px-3 py-1 text-sm text-white transition-colors bg-red-600 rounded hover:bg-red-700'
+						onClick={() =>
+							bonusInput.trim() && onBonusSubmit?.(id, bonusInput.trim())
+						}
+						className='w-full py-1 mt-1 bg-[#AF2D03] hover:bg-[#C33B52] text-white rounded'
 					>
-						<X className='w-4 h-4' /> Reject
+						Submit Bonus Call
 					</button>
 				</div>
 			)}
@@ -68,32 +124,32 @@ export function SlotCallCard({
 }
 
 function StatusBadge({ status }: { status: SlotCallStatus }) {
+	const baseClass =
+		"text-xs px-2 py-0.5 rounded-full border font-medium inline-block";
+
 	if (status === "pending") {
 		return (
-			<Badge
-				variant='outline'
-				className='text-[#EA8105] border-[#EA8105] bg-[#EA8105]/20'
+			<span
+				className={`${baseClass} text-[#EA8105] border-[#EA8105] bg-[#EA8105]/20`}
 			>
 				Pending
-			</Badge>
-		);
-	} else if (status === "accepted") {
-		return (
-			<Badge
-				variant='outline'
-				className='text-[#38BDF8] border-[#38BDF8] bg-[#38BDF8]/20'
-			>
-				Accepted
-			</Badge>
-		);
-	} else {
-		return (
-			<Badge
-				variant='outline'
-				className='text-[#C33B52] border-[#C33B52] bg-[#C33B52]/20'
-			>
-				Rejected
-			</Badge>
+			</span>
 		);
 	}
+	if (status === "accepted") {
+		return (
+			<span
+				className={`${baseClass} text-[#38BDF8] border-[#38BDF8] bg-[#38BDF8]/20`}
+			>
+				Accepted
+			</span>
+		);
+	}
+	return (
+		<span
+			className={`${baseClass} text-[#C33B52] border-[#C33B52] bg-[#C33B52]/20`}
+		>
+			Rejected
+		</span>
+	);
 }
