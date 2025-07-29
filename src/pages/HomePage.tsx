@@ -1,13 +1,14 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { LeaderboardTable } from "@/components/LeaderboardTable";
-import { SlotCallCard } from "@/components/SlotCallCard";
-import { GiveawayCard } from "@/components/GiveawayCard";
 import { Link } from "react-router-dom";
 import { Dices, Crown, Gift, Users, ArrowRight } from "lucide-react";
-import { useLeaderboardStore } from "@/store/useLeaderboardStore";
+import {
+	useLeaderboardStore,
+	getCurrentBiweeklyRange,
+} from "@/store/useLeaderboardStore";
 import { useSlotCallStore } from "@/store/useSlotCallStore";
 import { useGiveawayStore } from "@/store/useGiveawayStore";
 
@@ -16,13 +17,8 @@ function HomePage() {
 	const { giveaways } = useGiveawayStore();
 	const { weeklyLeaderboard, fetchLeaderboard } = useLeaderboardStore();
 
-	// ✅ Guards added to avoid errors when arrays are undefined
 	const topLeaderboard = Array.isArray(weeklyLeaderboard)
 		? weeklyLeaderboard.slice(0, 5)
-		: [];
-	const recentSlotCalls = Array.isArray(slotCalls) ? slotCalls.slice(0, 3) : [];
-	const activeGiveaways = Array.isArray(giveaways)
-		? giveaways.filter((g) => g.status === "active").slice(0, 2)
 		: [];
 
 	useEffect(() => {
@@ -30,6 +26,45 @@ function HomePage() {
 			fetchLeaderboard("weekly");
 		}
 	}, []);
+
+	const { end_at } = getCurrentBiweeklyRange();
+	const [timeLeft, setTimeLeft] = useState("");
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			const now = new Date();
+			const end = new Date(end_at);
+			const diff = end.getTime() - now.getTime();
+
+			if (diff <= 0) {
+				setTimeLeft("00d : 00h : 00m : 00s");
+				clearInterval(interval);
+				return;
+			}
+
+			const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+			const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+			const minutes = Math.floor((diff / (1000 * 60)) % 60);
+			const seconds = Math.floor((diff / 1000) % 60);
+
+			setTimeLeft(
+				`${days.toString().padStart(2, "0")}d : ${hours
+					.toString()
+					.padStart(2, "0")}h : ${minutes
+					.toString()
+					.padStart(2, "0")}m : ${seconds.toString().padStart(2, "0")}s`
+			);
+		}, 1000);
+
+		return () => clearInterval(interval);
+	}, [end_at]);
+
+	// Simple time extractor for labels
+	function renderTimeUnit(timeStr: string, unit: "d" | "h" | "m" | "s") {
+		const regex = new RegExp(`(\\d{2})${unit}`);
+		const match = timeStr.match(regex);
+		return match ? match[1] : "00";
+	}
 
 	return (
 		<div className='flex flex-col min-h-screen bg-[#191F3B] text-white'>
@@ -92,6 +127,22 @@ function HomePage() {
 					</div>
 				</section>
 
+				{/* Compact Centered Countdown */}
+				{/* Compact Centered Countdown */}
+				<section className='flex justify-center py-12'>
+					<div className='text-center border border-[#EA6D0C] rounded-lg px-6 py-6 bg-[#1E2547] shadow-md inline-flex flex-col items-center'>
+						<h2 className='text-xl font-semibold text-[#EA6D0C] mb-4'>
+							⏳ Leaderboard Ends In
+						</h2>
+						<p className='font-mono text-3xl text-[#38BDF8] tracking-widest select-none'>
+							{timeLeft}
+						</p>
+						<p className='mt-2 text-sm text-[#FFFFFF]/80'>
+							Keep playing to secure your rank!
+						</p>
+					</div>
+				</section>
+
 				{/* Leaderboard Section */}
 				<section className='container py-16'>
 					<div className='flex items-center justify-between mb-8'>
@@ -141,8 +192,6 @@ function HomePage() {
 						</div>
 					</div>
 				</section>
-
-				{/* You can add previews of recentSlotCalls and activeGiveaways below if needed */}
 			</main>
 
 			<Footer />

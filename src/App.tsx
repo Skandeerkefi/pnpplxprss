@@ -11,6 +11,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuthStore } from "@/store/useAuthStore";
 import SlotOverlay from "@/pages/SlotOverlay";
+import BonusHuntPage from "@/pages/BonusHuntPage";
 function App() {
 	const loadFromStorage = useAuthStore((state) => state.loadFromStorage);
 	const user = useAuthStore((state) => state.user);
@@ -40,6 +41,7 @@ function App() {
 					<Route path='/signup' element={<SignupPage />} />
 					<Route path='*' element={<NotFoundPage />} />
 					<Route path='/slot-overlay' element={<SlotOverlay />} />
+					<Route path='/bonus-hunt' element={<BonusHuntPage />} />
 				</Routes>
 			</BrowserRouter>
 			<Toaster />

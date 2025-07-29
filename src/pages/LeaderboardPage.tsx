@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { LeaderboardTable } from "@/components/LeaderboardTable";
@@ -27,6 +27,31 @@ function LeaderboardPage() {
 	}, [fetchLeaderboard]);
 
 	const { start_at, end_at } = getCurrentBiweeklyRange();
+
+	const [timeLeft, setTimeLeft] = useState<string>("");
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			const endDate = new Date(end_at);
+			const now = new Date();
+			const diff = endDate.getTime() - now.getTime();
+
+			if (diff <= 0) {
+				setTimeLeft("Leaderboard period has ended.");
+				clearInterval(interval);
+				return;
+			}
+
+			const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+			const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+			const minutes = Math.floor((diff / (1000 * 60)) % 60);
+			const seconds = Math.floor((diff / 1000) % 60);
+
+			setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s remaining`);
+		}, 1000);
+
+		return () => clearInterval(interval);
+	}, [end_at]);
 
 	return (
 		<div className='flex flex-col min-h-screen bg-[#191F3B] text-white'>
@@ -156,6 +181,7 @@ function LeaderboardPage() {
 						<p className='mt-2 text-sm text-[#EA6D0C]'>
 							Period: {start_at} → {end_at}
 						</p>
+						<p className='mt-1 text-sm text-[#38BDF8]'>{timeLeft}</p>
 					</div>
 					{isLoading ? (
 						<div className='flex items-center justify-center h-64'>
