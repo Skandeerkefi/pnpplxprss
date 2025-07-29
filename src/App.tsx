@@ -10,24 +10,24 @@ import NotFoundPage from "@/pages/NotFoundPage";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuthStore } from "@/store/useAuthStore";
-
+import SlotOverlay from "@/pages/SlotOverlay";
 function App() {
 	const loadFromStorage = useAuthStore((state) => state.loadFromStorage);
-  const user = useAuthStore((state) => state.user);
+	const user = useAuthStore((state) => state.user);
 
-  useEffect(() => {
-    loadFromStorage();
-  }, [loadFromStorage]);
+	useEffect(() => {
+		loadFromStorage();
+	}, [loadFromStorage]);
 
-  useEffect(() => {
-    if (user?.role === "admin") {
-      // Do admin-specific logic here
-      console.log("User is admin, do admin stuff");
-    } else {
-      // Non-admin logic or nothing
-      console.log("User is not admin");
-    }
-  }, [user]);
+	useEffect(() => {
+		if (user?.role === "admin") {
+			// Do admin-specific logic here
+			console.log("User is admin, do admin stuff");
+		} else {
+			// Non-admin logic or nothing
+			console.log("User is not admin");
+		}
+	}, [user]);
 	return (
 		<TooltipProvider>
 			<BrowserRouter>
@@ -39,6 +39,7 @@ function App() {
 					<Route path='/login' element={<LoginPage />} />
 					<Route path='/signup' element={<SignupPage />} />
 					<Route path='*' element={<NotFoundPage />} />
+					<Route path='/slot-overlay' element={<SlotOverlay />} />
 				</Routes>
 			</BrowserRouter>
 			<Toaster />
