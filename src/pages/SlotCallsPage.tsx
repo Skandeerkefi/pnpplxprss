@@ -39,6 +39,7 @@ function SlotCallsPage() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [slotName, setSlotName] = useState("");
 	const [filter, setFilter] = useState<FilterStatus>("all");
+	const [showOnly250Hit, setShowOnly250Hit] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 
 	const debouncedSearchQuery = useDebounce(searchQuery, 300);
@@ -58,10 +59,13 @@ function SlotCallsPage() {
 			const matchesSearch =
 				call.slotName.toLowerCase().includes(query) ||
 				call.requester.toLowerCase().includes(query);
-			if (filter === "all") return matchesSearch;
-			return matchesSearch && call.status === filter;
+
+			const matchesStatus = filter === "all" || call.status === filter;
+			const matches250 = !showOnly250Hit || call.x250Hit;
+
+			return matchesSearch && matchesStatus && matches250;
 		});
-	}, [slotCalls, debouncedSearchQuery, filter]);
+	}, [slotCalls, debouncedSearchQuery, filter, showOnly250Hit]);
 
 	const handleSubmit = async () => {
 		if (!slotName.trim()) {
@@ -139,7 +143,6 @@ function SlotCallsPage() {
 				title: "Deleted",
 				description: "Slot call deleted successfully.",
 			});
-			// fetchSlotCalls is called inside deleteSlotCall
 		} else {
 			toast({
 				title: "Error",
@@ -223,6 +226,15 @@ function SlotCallsPage() {
 							<TabsTrigger value='rejected'>Rejected</TabsTrigger>
 						</TabsList>
 					</Tabs>
+
+					<label className='flex items-center gap-2 text-sm text-white'>
+						<input
+							type='checkbox'
+							checked={showOnly250Hit}
+							onChange={(e) => setShowOnly250Hit(e.target.checked)}
+						/>
+						Show only 250x Hit
+					</label>
 				</div>
 
 				{isLoading ? (
