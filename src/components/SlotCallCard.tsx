@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Clock, Check, X, Gift } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-export type SlotCallStatus = "pending" | "accepted" | "rejected";
+export type SlotCallStatus = "pending" | "accepted" | "rejected" | "played";
 
 interface SlotCallProps {
 	id: string;
@@ -12,7 +12,7 @@ interface SlotCallProps {
 	status: SlotCallStatus;
 	x250Hit?: boolean;
 	bonusCall?: { name: string; createdAt: string };
-	onAccept?: (id: string, x250Hit: boolean) => void;
+	onAccept?: (id: string, x250Hit: boolean, newStatus?: SlotCallStatus) => void;
 	onReject?: (id: string) => void;
 	isAdminView?: boolean;
 	isUserView?: boolean;
@@ -55,35 +55,13 @@ export function SlotCallCard({
 			</div>
 
 			{/* Admin Controls */}
-			{isAdminView && (
-				<div className='mt-4 space-y-2'>
-					<label className='flex items-center gap-2 text-sm text-[#38BDF8]'>
-						<input
-							type='checkbox'
-							checked={x250Hit || false}
-							onChange={() => onAccept?.(id, !x250Hit)} // Send updated value
-						/>
-						Mark as 250x Hit
-					</label>
-
-					{status === "pending" && (
-						<div className='flex gap-2'>
-							<button
-								onClick={() => onAccept?.(id, x250Hit || false)}
-								className='flex items-center justify-center flex-1 gap-1 px-3 py-1 text-sm text-white bg-green-600 rounded hover:bg-green-700'
-							>
-								<Check className='w-4 h-4' /> Accept
-							</button>
-
-							<button
-								onClick={() => onReject?.(id)}
-								className='flex items-center justify-center flex-1 gap-1 px-3 py-1 text-sm text-white bg-red-600 rounded hover:bg-red-700'
-							>
-								<X className='w-4 h-4' /> Reject
-							</button>
-						</div>
-					)}
-				</div>
+			{isAdminView && status === "accepted" && (
+				<button
+					onClick={() => onAccept?.(id, x250Hit || false, "played")}
+					className='w-full py-1 mt-2 text-sm text-white bg-blue-700 rounded hover:bg-blue-800'
+				>
+					Mark as Played
+				</button>
 			)}
 
 			{/* Bonus Call Submitted */}
@@ -142,6 +120,15 @@ function StatusBadge({ status }: { status: SlotCallStatus }) {
 				className={`${baseClass} text-[#38BDF8] border-[#38BDF8] bg-[#38BDF8]/20`}
 			>
 				Accepted
+			</span>
+		);
+	}
+	if (status === "played") {
+		return (
+			<span
+				className={`${baseClass} text-[#00FF99] border-[#00FF99] bg-[#00FF99]/20`}
+			>
+				Played
 			</span>
 		);
 	}

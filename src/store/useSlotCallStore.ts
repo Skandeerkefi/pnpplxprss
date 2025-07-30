@@ -1,7 +1,8 @@
+// src/store/useSlotCallStore.ts
 import { create } from "zustand";
 import { useAuthStore } from "./useAuthStore";
 
-export type SlotCallStatus = "pending" | "accepted" | "rejected";
+export type SlotCallStatus = "pending" | "accepted" | "rejected" | "played";
 
 export interface SlotCall {
 	id: string;

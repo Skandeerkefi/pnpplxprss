@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useDebounce } from "@/hooks/use-debounce";
 
-type FilterStatus = "all" | "pending" | "accepted" | "rejected";
+type FilterStatus = "all" | "pending" | "accepted" | "rejected" | "played";
 
 function SlotCallsPage() {
 	const {
@@ -86,10 +86,17 @@ function SlotCallsPage() {
 		}
 	};
 
-	const handleAccept = async (id: string, newX250Value: boolean) => {
-		const result = await updateSlotStatus(id, "accepted", newX250Value);
+	const handleAccept = async (
+		id: string,
+		newX250Value: boolean,
+		newStatus: SlotCallStatus = "accepted"
+	) => {
+		const result = await updateSlotStatus(id, newStatus, newX250Value);
 		if (result.success) {
-			toast({ title: "Updated", description: "Slot status updated." });
+			toast({
+				title: "Updated",
+				description: `Slot status set to ${newStatus}.`,
+			});
 			await fetchSlotCalls();
 		} else {
 			toast({
@@ -191,15 +198,17 @@ function SlotCallsPage() {
 						<Filter className='w-4 h-4 text-[#C33B52]' />
 						<Tabs onValueChange={(val) => setFilter(val as FilterStatus)}>
 							<TabsList>
-								{["all", "pending", "accepted", "rejected"].map((f) => (
-									<TabsTrigger
-										key={f}
-										value={f}
-										className='text-[#EA6D0C] hover:bg-[#EA6D0C] hover:text-white'
-									>
-										{f.charAt(0).toUpperCase() + f.slice(1)}
-									</TabsTrigger>
-								))}
+								{["all", "pending", "accepted", "rejected", "played"].map(
+									(f) => (
+										<TabsTrigger
+											key={f}
+											value={f}
+											className='text-[#EA6D0C] hover:bg-[#EA6D0C] hover:text-white'
+										>
+											{f.charAt(0).toUpperCase() + f.slice(1)}
+										</TabsTrigger>
+									)
+								)}
 							</TabsList>
 						</Tabs>
 					</div>
