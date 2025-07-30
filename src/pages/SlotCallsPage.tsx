@@ -31,6 +31,7 @@ function SlotCallsPage() {
 		fetchSlotCalls,
 		isSubmitting,
 		deleteSlotCall,
+		updatePlayedStatus,
 	} = useSlotCallStore();
 
 	const { user, token } = useAuthStore();
@@ -95,7 +96,7 @@ function SlotCallsPage() {
 		} else {
 			toast({
 				title: "Error",
-				description: result.error || "Failed to update slot",
+				description: result.error || "Failed to update status.",
 				variant: "destructive",
 			});
 		}
@@ -104,102 +105,104 @@ function SlotCallsPage() {
 	const handleReject = async (id: string) => {
 		const result = await updateSlotStatus(id, "rejected");
 		if (result.success) {
-			toast({ title: "Rejected", description: "Slot call rejected." });
+			toast({ title: "Updated", description: "Slot status updated." });
 			await fetchSlotCalls();
 		} else {
 			toast({
 				title: "Error",
-				description: result.error || "Failed to reject slot call",
+				description: result.error || "Failed to update status.",
 				variant: "destructive",
 			});
 		}
 	};
 
-	const handleBonusSubmit = async (id: string, slotName: string) => {
-		const result = await submitBonusCall(id, slotName);
-		if (result.success) {
+	const handleBonusSubmit = async (id: string, bonusSlot: string) => {
+		if (!bonusSlot.trim()) {
 			toast({
-				title: "Bonus Call Submitted",
-				description: "Your $20 bonus call has been recorded.",
+				title: "Error",
+				description: "Bonus slot name cannot be empty.",
+				variant: "destructive",
 			});
+			return;
+		}
+
+		const result = await submitBonusCall(id, bonusSlot);
+		if (result.success) {
+			toast({ title: "Submitted", description: "Bonus call submitted." });
 			await fetchSlotCalls();
 		} else {
 			toast({
 				title: "Error",
-				description: result.error || "Failed to submit bonus call",
+				description: result.error || "Failed to submit bonus call.",
 				variant: "destructive",
 			});
 		}
 	};
 
 	const handleDelete = async (id: string) => {
+		if (!confirm("Are you sure you want to delete this slot call?")) return;
+
 		const result = await deleteSlotCall(id);
 		if (result.success) {
-			toast({
-				title: "Deleted",
-				description: "Slot call deleted successfully.",
-			});
-			// fetchSlotCalls already called inside deleteSlotCall
+			toast({ title: "Deleted", description: "Slot call deleted." });
+			await fetchSlotCalls();
 		} else {
 			toast({
 				title: "Error",
-				description: result.error || "Failed to delete slot call",
+				description: result.error || "Failed to delete slot call.",
+				variant: "destructive",
+			});
+		}
+	};
+
+	const handlePlayedToggle = async (id: string, played: boolean) => {
+		const result = await updatePlayedStatus(id, played);
+		if (result.success) {
+			toast({
+				title: "Updated",
+				description: `Marked as ${played ? "played" : "not played"}`,
+			});
+			await fetchSlotCalls();
+		} else {
+			toast({
+				title: "Error",
+				description: result.error || "Failed to update played status",
 				variant: "destructive",
 			});
 		}
 	};
 
 	return (
-		<div className='flex flex-col min-h-screen bg-[#191F3B] text-white'>
+		<>
 			<Navbar />
-			<main className='container flex-grow py-8'>
-				<div className='flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between'>
-					<h1 className='text-3xl font-bold'>Slot Calls</h1>
+			<main className='max-w-4xl p-4 mx-auto'>
+				<h1 className='mb-4 text-3xl font-bold text-white'>Slot Calls</h1>
 
-					<Dialog>
-						<DialogTrigger asChild>
-							<Button variant='outline' className='flex items-center gap-2'>
-								<Plus className='w-5 h-5' />
-								New Slot Call
-							</Button>
-						</DialogTrigger>
+				{/* Submit New Slot Call */}
+				{!isAdmin && (
+					<div className='mb-6'>
+						<Input
+							placeholder='Enter slot name'
+							value={slotName}
+							onChange={(e) => setSlotName(e.target.value)}
+							disabled={isSubmitting}
+						/>
+						<Button
+							className='mt-2'
+							onClick={handleSubmit}
+							disabled={isSubmitting || !slotName.trim()}
+						>
+							{isSubmitting ? "Submitting..." : "Submit Slot Call"}
+						</Button>
+					</div>
+				)}
 
-						<DialogContent className='sm:max-w-lg'>
-							<DialogHeader>
-								<DialogTitle>Submit a New Slot Call</DialogTitle>
-								<DialogDescription>
-									Enter the name of the slot machine you want to call.
-								</DialogDescription>
-							</DialogHeader>
-							<Input
-								autoFocus
-								type='text'
-								value={slotName}
-								onChange={(e) => setSlotName(e.target.value)}
-								placeholder='Slot Name'
-								className='mt-4'
-							/>
-							<DialogFooter>
-								<Button onClick={handleSubmit} disabled={isSubmitting}>
-									Submit
-								</Button>
-							</DialogFooter>
-						</DialogContent>
-					</Dialog>
-				</div>
-
-				<div className='flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between'>
-					<Input
-						placeholder='Search slot calls...'
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
-						className='max-w-xs'
-					/>
-
+				{/* Filters & Search */}
+				<div className='flex flex-col gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between'>
 					<Tabs
 						value={filter}
 						onValueChange={(value) => setFilter(value as FilterStatus)}
-						className='max-w-xs'
+						className='w-full sm:w-auto'
 					>
 						<TabsList>
 							<TabsTrigger value='all'>All</TabsTrigger>
@@ -208,37 +211,47 @@ function SlotCallsPage() {
 							<TabsTrigger value='rejected'>Rejected</TabsTrigger>
 						</TabsList>
 					</Tabs>
+					<Input
+						placeholder='Search by slot or requester'
+						value={searchQuery}
+						onChange={(e) => setSearchQuery(e.target.value)}
+						className='max-w-sm'
+						leftIcon={<Search />}
+					/>
 				</div>
 
-				{isLoading && <p>Loading slot calls...</p>}
-
-				{!isLoading && filteredSlotCalls.length === 0 && (
-					<p>No slot calls found.</p>
+				{/* Slot Calls List */}
+				{isLoading ? (
+					<div className='text-white'>Loading slot calls...</div>
+				) : filteredSlotCalls.length === 0 ? (
+					<div className='text-white'>No slot calls found.</div>
+				) : (
+					<div className='space-y-4'>
+						{filteredSlotCalls.map((call) => (
+							<SlotCallCard
+								key={call.id}
+								id={call.id}
+								slotName={call.slotName}
+								requester={call.requester}
+								timestamp={call.timestamp}
+								status={call.status}
+								x250Hit={call.x250Hit}
+								bonusCall={call.bonusCall}
+								played={call.played}
+								isAdminView={isAdmin}
+								isUserView={!isAdmin}
+								onAccept={handleAccept}
+								onReject={handleReject}
+								onBonusSubmit={handleBonusSubmit}
+								onDelete={handleDelete}
+								onPlayedToggle={handlePlayedToggle}
+							/>
+						))}
+					</div>
 				)}
-
-				<div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-					{filteredSlotCalls.map((call) => (
-						<SlotCallCard
-							key={call.id}
-							id={call.id}
-							slotName={call.slotName}
-							requester={call.requester}
-							timestamp={call.timestamp}
-							status={call.status}
-							x250Hit={call.x250Hit}
-							bonusCall={call.bonusCall}
-							isAdminView={isAdmin}
-							isUserView={!isAdmin}
-							onAccept={handleAccept}
-							onReject={handleReject}
-							onBonusSubmit={handleBonusSubmit}
-							onDelete={handleDelete}
-						/>
-					))}
-				</div>
 			</main>
 			<Footer />
-		</div>
+		</>
 	);
 }
 

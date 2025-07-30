@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Clock, Check, X, Gift } from "lucide-react";
+import { Clock, Check, X, Gift, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export type SlotCallStatus = "pending" | "accepted" | "rejected";
@@ -12,12 +12,14 @@ interface SlotCallProps {
 	status: SlotCallStatus;
 	x250Hit?: boolean;
 	bonusCall?: { name: string; createdAt: string };
+	played?: boolean;
 	onAccept?: (id: string, x250Hit: boolean) => void;
 	onReject?: (id: string) => void;
+	onDelete?: (id: string) => void;
+	onPlayedToggle?: (id: string, played: boolean) => void;
 	isAdminView?: boolean;
 	isUserView?: boolean;
 	onBonusSubmit?: (id: string, bonusSlot: string) => void;
-	onDelete?: (id: string) => void;
 }
 
 export function SlotCallCard({
@@ -28,14 +30,15 @@ export function SlotCallCard({
 	status,
 	x250Hit,
 	bonusCall,
+	played,
 	onAccept,
 	onReject,
+	onDelete,
+	onPlayedToggle,
 	isAdminView = false,
 	isUserView = false,
 	onBonusSubmit,
-	onDelete,
 }: SlotCallProps) {
-	const [x250Checked, setX250Checked] = useState(false);
 	const [bonusInput, setBonusInput] = useState("");
 
 	const showBonusInput = isUserView && x250Hit && !bonusCall;
@@ -63,7 +66,7 @@ export function SlotCallCard({
 						<input
 							type='checkbox'
 							checked={x250Hit || false}
-							onChange={() => onAccept?.(id, !x250Hit)} // Toggle x250Hit value
+							onChange={() => onAccept?.(id, !x250Hit)}
 						/>
 						Mark as 250x Hit
 					</label>
@@ -86,20 +89,22 @@ export function SlotCallCard({
 						</div>
 					)}
 
-					{/* Delete Button */}
+					{status === "accepted" && (
+						<label className='flex items-center gap-2 mt-2 text-sm text-[#38BDF8]'>
+							<input
+								type='checkbox'
+								checked={played || false}
+								onChange={() => onPlayedToggle?.(id, !(played || false))}
+							/>
+							Mark as Played
+						</label>
+					)}
+
 					<button
-						onClick={() => {
-							if (
-								confirm(
-									"Are you sure you want to delete this slot call? This action cannot be undone."
-								)
-							) {
-								onDelete?.(id);
-							}
-						}}
-						className='w-full py-1 mt-2 text-white bg-red-700 rounded hover:bg-red-800'
+						onClick={() => onDelete?.(id)}
+						className='flex items-center justify-center w-full gap-1 py-1 mt-2 text-sm text-white bg-red-700 rounded hover:bg-red-800'
 					>
-						Delete
+						<Trash2 className='w-4 h-4' /> Delete
 					</button>
 				</div>
 			)}
