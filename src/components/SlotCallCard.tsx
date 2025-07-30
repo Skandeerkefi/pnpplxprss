@@ -12,11 +12,13 @@ interface SlotCallProps {
 	status: SlotCallStatus;
 	x250Hit?: boolean;
 	bonusCall?: { name: string; createdAt: string };
-	onAccept?: (id: string, x250Hit: boolean, newStatus?: SlotCallStatus) => void;
+	onAccept?: (id: string, x250Hit: boolean) => void;
 	onReject?: (id: string) => void;
 	isAdminView?: boolean;
 	isUserView?: boolean;
 	onBonusSubmit?: (id: string, bonusSlot: string) => void;
+	onDelete?: (id: string) => void; // new prop for delete
+	onMarkPlayed?: (id: string) => void; // optional: to mark "played"
 }
 
 export function SlotCallCard({
@@ -32,9 +34,10 @@ export function SlotCallCard({
 	isAdminView = false,
 	isUserView = false,
 	onBonusSubmit,
+	onDelete,
+	onMarkPlayed,
 }: SlotCallProps) {
 	const [bonusInput, setBonusInput] = useState("");
-
 	const showBonusInput = isUserView && x250Hit && !bonusCall;
 
 	return (
@@ -56,19 +59,21 @@ export function SlotCallCard({
 			{/* Admin Controls */}
 			{isAdminView && (
 				<div className='mt-4 space-y-2'>
+					{/* Mark 250x Hit */}
 					<label className='flex items-center gap-2 text-sm text-[#38BDF8]'>
 						<input
 							type='checkbox'
 							checked={x250Hit || false}
-							onChange={() => onAccept?.(id, !x250Hit, status)}
+							onChange={() => onAccept?.(id, !x250Hit)}
 						/>
 						Mark as 250x Hit
 					</label>
 
+					{/* Accept/Reject buttons only if pending */}
 					{status === "pending" && (
 						<div className='flex gap-2'>
 							<button
-								onClick={() => onAccept?.(id, x250Hit || false, "accepted")}
+								onClick={() => onAccept?.(id, x250Hit || false)}
 								className='flex items-center justify-center flex-1 gap-1 px-3 py-1 text-sm text-white bg-green-600 rounded hover:bg-green-700'
 							>
 								<Check className='w-4 h-4' /> Accept
@@ -83,15 +88,31 @@ export function SlotCallCard({
 						</div>
 					)}
 
-					{/* Show "Mark as Played" only if status is accepted */}
-					{status === "accepted" && (
+					{/* Mark as Played if accepted */}
+					{status === "accepted" && onMarkPlayed && (
 						<button
-							onClick={() => onAccept?.(id, x250Hit || false, "played")}
-							className='w-full py-1 mt-2 text-sm text-white bg-blue-700 rounded hover:bg-blue-800'
+							onClick={() => onMarkPlayed(id)}
+							className='w-full py-1 mt-2 text-sm text-white bg-blue-600 rounded hover:bg-blue-700'
 						>
 							Mark as Played
 						</button>
 					)}
+
+					{/* Delete Button */}
+					<button
+						onClick={() => {
+							if (
+								confirm(
+									"Are you sure you want to delete this slot call? This action cannot be undone."
+								)
+							) {
+								onDelete?.(id);
+							}
+						}}
+						className='w-full py-1 mt-2 text-sm text-white bg-red-700 rounded hover:bg-red-800'
+					>
+						Delete Slot Call
+					</button>
 				</div>
 			)}
 
@@ -136,40 +157,38 @@ function StatusBadge({ status }: { status: SlotCallStatus }) {
 	const baseClass =
 		"text-xs px-2 py-0.5 rounded-full border font-medium inline-block";
 
-	switch (status) {
-		case "pending":
-			return (
-				<span
-					className={`${baseClass} text-[#EA8105] border-[#EA8105] bg-[#EA8105]/20`}
-				>
-					Pending
-				</span>
-			);
-		case "accepted":
-			return (
-				<span
-					className={`${baseClass} text-[#38BDF8] border-[#38BDF8] bg-[#38BDF8]/20`}
-				>
-					Accepted
-				</span>
-			);
-		case "rejected":
-			return (
-				<span
-					className={`${baseClass} text-[#C33B52] border-[#C33B52] bg-[#C33B52]/20`}
-				>
-					Rejected
-				</span>
-			);
-		case "played":
-			return (
-				<span
-					className={`${baseClass} text-green-400 border-green-400 bg-green-400/20`}
-				>
-					Played
-				</span>
-			);
-		default:
-			return null;
+	if (status === "pending") {
+		return (
+			<span
+				className={`${baseClass} text-[#EA8105] border-[#EA8105] bg-[#EA8105]/20`}
+			>
+				Pending
+			</span>
+		);
 	}
+	if (status === "accepted") {
+		return (
+			<span
+				className={`${baseClass} text-[#38BDF8] border-[#38BDF8] bg-[#38BDF8]/20`}
+			>
+				Accepted
+			</span>
+		);
+	}
+	if (status === "played") {
+		return (
+			<span
+				className={`${baseClass} text-[#10B981] border-[#10B981] bg-[#10B981]/20`}
+			>
+				Played
+			</span>
+		);
+	}
+	return (
+		<span
+			className={`${baseClass} text-[#C33B52] border-[#C33B52] bg-[#C33B52]/20`}
+		>
+			Rejected
+		</span>
+	);
 }

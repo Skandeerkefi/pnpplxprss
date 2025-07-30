@@ -117,7 +117,39 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 			return { success: false, error: error.message };
 		}
 	},
+	// useSlotCallStore.ts (add this method inside the store object)
 
+	deleteSlotCall: async (id: string) => {
+		const token = useAuthStore.getState().token;
+		if (!token) return { success: false, error: "Not authenticated" };
+
+		try {
+			const res = await fetch(
+				`https://pnpplxprssdata.onrender.com/api/slot-calls/${id}`,
+				{
+					method: "DELETE",
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+					credentials: "include",
+				}
+			);
+
+			if (!res.ok) {
+				const data = await res.json();
+				throw new Error(data.message || "Failed to delete slot call");
+			}
+
+			// Remove from local state after success
+			set((state) => ({
+				slotCalls: state.slotCalls.filter((call) => call.id !== id),
+			}));
+
+			return { success: true };
+		} catch (error: any) {
+			return { success: false, error: error.message };
+		}
+	},
 	updateSlotStatus: async (id, status, x250Hit = false) => {
 		const token = useAuthStore.getState().token;
 		if (!token) return { success: false, error: "Not authenticated" };

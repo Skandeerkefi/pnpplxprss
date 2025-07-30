@@ -29,7 +29,7 @@ function SlotCallsPage() {
 		updateSlotStatus,
 		submitBonusCall,
 		fetchSlotCalls,
-		isSubmitting,
+		deleteSlotCall,
 	} = useSlotCallStore();
 
 	const { user, token } = useAuthStore();
@@ -86,17 +86,10 @@ function SlotCallsPage() {
 		}
 	};
 
-	const handleAccept = async (
-		id: string,
-		newX250Value: boolean,
-		newStatus: "accepted" | "played" = "accepted"
-	) => {
-		const result = await updateSlotStatus(id, newStatus, newX250Value);
+	const handleAccept = async (id: string, newX250Value: boolean) => {
+		const result = await updateSlotStatus(id, "accepted", newX250Value);
 		if (result.success) {
-			toast({
-				title: "Updated",
-				description: `Slot status set to ${newStatus}.`,
-			});
+			toast({ title: "Updated", description: "Slot status updated." });
 			await fetchSlotCalls();
 		} else {
 			toast({
@@ -121,6 +114,20 @@ function SlotCallsPage() {
 		}
 	};
 
+	const handleMarkPlayed = async (id: string) => {
+		const result = await updateSlotStatus(id, "played");
+		if (result.success) {
+			toast({ title: "Updated", description: "Marked as played." });
+			await fetchSlotCalls();
+		} else {
+			toast({
+				title: "Error",
+				description: result.error || "Failed to mark as played",
+				variant: "destructive",
+			});
+		}
+	};
+
 	const handleBonusSubmit = async (id: string, slotName: string) => {
 		const result = await submitBonusCall(id, slotName);
 		if (result.success) {
@@ -133,6 +140,20 @@ function SlotCallsPage() {
 			toast({
 				title: "Error",
 				description: result.error || "Failed to submit bonus call",
+				variant: "destructive",
+			});
+		}
+	};
+
+	const handleDelete = async (id: string) => {
+		const result = await deleteSlotCall(id);
+		if (result.success) {
+			toast({ title: "Deleted", description: "Slot call deleted." });
+			await fetchSlotCalls();
+		} else {
+			toast({
+				title: "Error",
+				description: result.error || "Failed to delete slot call",
 				variant: "destructive",
 			});
 		}
@@ -173,10 +194,10 @@ function SlotCallsPage() {
 								<DialogFooter>
 									<Button
 										onClick={handleSubmit}
-										disabled={isSubmitting}
+										disabled={false}
 										className='bg-[#EA8105] hover:bg-[#C33B52]'
 									>
-										{isSubmitting ? "Submitting..." : "Submit"}
+										Submit
 									</Button>
 								</DialogFooter>
 							</DialogContent>
@@ -198,7 +219,7 @@ function SlotCallsPage() {
 						<Filter className='w-4 h-4 text-[#C33B52]' />
 						<Tabs onValueChange={(val) => setFilter(val as FilterStatus)}>
 							<TabsList>
-								{["all", "pending", "accepted", "rejected", "played"].map(
+								{["all", "pending", "accepted", "played", "rejected"].map(
 									(f) => (
 										<TabsTrigger
 											key={f}
@@ -231,6 +252,8 @@ function SlotCallsPage() {
 								onAccept={handleAccept}
 								onReject={handleReject}
 								onBonusSubmit={handleBonusSubmit}
+								onDelete={handleDelete}
+								onMarkPlayed={handleMarkPlayed}
 							/>
 						))}
 				</div>
