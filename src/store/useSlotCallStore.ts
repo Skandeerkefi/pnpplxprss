@@ -11,7 +11,6 @@ export interface SlotCall {
 	status: SlotCallStatus;
 	x250Hit?: boolean;
 	bonusCall?: { name: string; createdAt: string };
-	played?: boolean;
 }
 
 interface SlotCallState {
@@ -29,12 +28,8 @@ interface SlotCallState {
 		status: SlotCallStatus,
 		x250Hit?: boolean
 	) => Promise<{ success: boolean; error?: string }>;
-	updatePlayedStatus: (
-		id: string,
-		played: boolean
-	) => Promise<{ success: boolean; error?: string }>;
-	deleteSlotCall: (id: string) => Promise<{ success: boolean; error?: string }>;
 	fetchSlotCalls: () => Promise<void>;
+	deleteSlotCall: (id: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 export const useSlotCallStore = create<SlotCallState>((set, get) => ({
@@ -78,7 +73,6 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 						status: newCall.status,
 						x250Hit: newCall.x250Hit,
 						bonusCall: newCall.bonusCall,
-						played: newCall.played || false,
 					},
 					...state.slotCalls,
 				],
@@ -169,74 +163,6 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 		}
 	},
 
-	updatePlayedStatus: async (id, played) => {
-		const token = useAuthStore.getState().token;
-		if (!token) return { success: false, error: "Not authenticated" };
-
-		try {
-			const res = await fetch(
-				`https://pnpplxprssdata.onrender.com/api/slot-calls/${id}/played`,
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${token}`,
-					},
-					body: JSON.stringify({ played }),
-					credentials: "include",
-				}
-			);
-
-			if (!res.ok) {
-				const data = await res.json();
-				throw new Error(data.message || "Failed to update played status");
-			}
-
-			const updated = (await res.json()).slotCall;
-
-			set((state) => ({
-				slotCalls: state.slotCalls.map((call) =>
-					call.id === id ? { ...call, played: updated.played } : call
-				),
-			}));
-
-			return { success: true };
-		} catch (error: any) {
-			return { success: false, error: error.message };
-		}
-	},
-
-	deleteSlotCall: async (id) => {
-		const token = useAuthStore.getState().token;
-		if (!token) return { success: false, error: "Not authenticated" };
-
-		try {
-			const res = await fetch(
-				`https://pnpplxprssdata.onrender.com/api/slot-calls/${id}`,
-				{
-					method: "DELETE",
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-					credentials: "include",
-				}
-			);
-
-			if (!res.ok) {
-				const data = await res.json();
-				throw new Error(data.message || "Failed to delete slot call");
-			}
-
-			set((state) => ({
-				slotCalls: state.slotCalls.filter((call) => call.id !== id),
-			}));
-
-			return { success: true };
-		} catch (error: any) {
-			return { success: false, error: error.message };
-		}
-	},
-
 	fetchSlotCalls: async () => {
 		const token = useAuthStore.getState().token;
 		const userRole = useAuthStore.getState().user?.role;
@@ -270,12 +196,41 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 				status: item.status,
 				x250Hit: item.x250Hit,
 				bonusCall: item.bonusCall,
-				played: item.played || false,
 			}));
 
 			set({ slotCalls: mapped });
 		} catch (error) {
 			console.error("Error fetching slot calls:", error);
+		}
+	},
+
+	deleteSlotCall: async (id) => {
+		const token = useAuthStore.getState().token;
+		if (!token) return { success: false, error: "Not authenticated" };
+
+		try {
+			const res = await fetch(
+				`https://pnpplxprssdata.onrender.com/api/slot-calls/${id}`,
+				{
+					method: "DELETE",
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+					credentials: "include",
+				}
+			);
+
+			if (!res.ok) {
+				const data = await res.json();
+				throw new Error(data.message || "Failed to delete slot call");
+			}
+
+			// Refresh slot calls after deletion
+			await get().fetchSlotCalls();
+
+			return { success: true };
+		} catch (error: any) {
+			return { success: false, error: error.message };
 		}
 	},
 }));
