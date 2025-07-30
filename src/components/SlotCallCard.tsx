@@ -64,7 +64,7 @@ export function SlotCallCard({
 							type='checkbox'
 							checked={x250Hit || false}
 							onChange={() => onAccept?.(id, !x250Hit)}
-							disabled={status !== "accepted" && status !== "played"}
+							disabled={status !== "played"}
 						/>
 						Mark as 250x Hit
 					</label>
