@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { useAuthStore } from "./useAuthStore";
 
-export type SlotCallStatus = "pending" | "accepted" | "rejected";
+export type SlotCallStatus = "pending" | "accepted" | "rejected" | "played";
 
 export interface SlotCall {
 	id: string;
@@ -28,8 +28,8 @@ interface SlotCallState {
 		status: SlotCallStatus,
 		x250Hit?: boolean
 	) => Promise<{ success: boolean; error?: string }>;
-	fetchSlotCalls: () => Promise<void>;
 	deleteSlotCall: (id: string) => Promise<{ success: boolean; error?: string }>;
+	fetchSlotCalls: () => Promise<void>;
 }
 
 export const useSlotCallStore = create<SlotCallState>((set, get) => ({
@@ -163,6 +163,36 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 		}
 	},
 
+	deleteSlotCall: async (id) => {
+		const token = useAuthStore.getState().token;
+		if (!token) return { success: false, error: "Not authenticated" };
+
+		try {
+			const res = await fetch(
+				`https://pnpplxprssdata.onrender.com/api/slot-calls/${id}`,
+				{
+					method: "DELETE",
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+					credentials: "include",
+				}
+			);
+
+			if (!res.ok) {
+				const data = await res.json();
+				throw new Error(data.message || "Failed to delete slot call");
+			}
+
+			// Refresh list after deletion
+			await get().fetchSlotCalls();
+
+			return { success: true };
+		} catch (error: any) {
+			return { success: false, error: error.message };
+		}
+	},
+
 	fetchSlotCalls: async () => {
 		const token = useAuthStore.getState().token;
 		const userRole = useAuthStore.getState().user?.role;
@@ -201,36 +231,6 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 			set({ slotCalls: mapped });
 		} catch (error) {
 			console.error("Error fetching slot calls:", error);
-		}
-	},
-
-	deleteSlotCall: async (id) => {
-		const token = useAuthStore.getState().token;
-		if (!token) return { success: false, error: "Not authenticated" };
-
-		try {
-			const res = await fetch(
-				`https://pnpplxprssdata.onrender.com/api/slot-calls/${id}`,
-				{
-					method: "DELETE",
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-					credentials: "include",
-				}
-			);
-
-			if (!res.ok) {
-				const data = await res.json();
-				throw new Error(data.message || "Failed to delete slot call");
-			}
-
-			// Refresh slot calls after deletion
-			await get().fetchSlotCalls();
-
-			return { success: true };
-		} catch (error: any) {
-			return { success: false, error: error.message };
 		}
 	},
 }));

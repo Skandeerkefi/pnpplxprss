@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useDebounce } from "@/hooks/use-debounce";
 
-type FilterStatus = "all" | "pending" | "accepted" | "rejected";
+type FilterStatus = "all" | "pending" | "accepted" | "rejected" | "played";
 
 function SlotCallsPage() {
 	const {
@@ -120,7 +120,7 @@ function SlotCallsPage() {
 		if (result.success) {
 			toast({
 				title: "Bonus Call Submitted",
-				description: "Your $20 bonus call has been recorded.",
+				description: "Bonus call saved successfully.",
 			});
 			await fetchSlotCalls();
 		} else {
@@ -139,7 +139,7 @@ function SlotCallsPage() {
 				title: "Deleted",
 				description: "Slot call deleted successfully.",
 			});
-			// fetchSlotCalls already called inside deleteSlotCall
+			// fetchSlotCalls is called inside deleteSlotCall
 		} else {
 			toast({
 				title: "Error",
@@ -149,93 +149,109 @@ function SlotCallsPage() {
 		}
 	};
 
+	const handleMarkPlayed = async (id: string) => {
+		const result = await updateSlotStatus(id, "played");
+		if (result.success) {
+			toast({ title: "Marked Played", description: "Slot marked as played." });
+			await fetchSlotCalls();
+		} else {
+			toast({
+				title: "Error",
+				description: result.error || "Failed to mark played",
+				variant: "destructive",
+			});
+		}
+	};
+
 	return (
 		<div className='flex flex-col min-h-screen bg-[#191F3B] text-white'>
 			<Navbar />
 			<main className='container flex-grow py-8'>
-				<div className='flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between'>
-					<h1 className='text-3xl font-bold'>Slot Calls</h1>
-
+				<div className='flex items-center justify-between mb-4'>
+					<h1 className='text-2xl font-bold'>Slot Calls</h1>
 					<Dialog>
 						<DialogTrigger asChild>
 							<Button variant='outline' className='flex items-center gap-2'>
-								<Plus className='w-5 h-5' />
-								New Slot Call
+								<Plus className='w-4 h-4' /> New Slot Call
 							</Button>
 						</DialogTrigger>
-
-						<DialogContent className='sm:max-w-lg'>
+						<DialogContent>
 							<DialogHeader>
-								<DialogTitle>Submit a New Slot Call</DialogTitle>
+								<DialogTitle>New Slot Call</DialogTitle>
 								<DialogDescription>
-									Enter the name of the slot machine you want to call.
+									Submit a new slot call to the system.
 								</DialogDescription>
 							</DialogHeader>
-							<Input
-								autoFocus
-								type='text'
-								value={slotName}
-								onChange={(e) => setSlotName(e.target.value)}
-								placeholder='Slot Name'
-								className='mt-4'
-							/>
-							<DialogFooter>
-								<Button onClick={handleSubmit} disabled={isSubmitting}>
-									Submit
-								</Button>
-							</DialogFooter>
+							<div className='flex flex-col gap-2'>
+								<Input
+									placeholder='Slot Name'
+									value={slotName}
+									onChange={(e) => setSlotName(e.target.value)}
+									disabled={isSubmitting}
+								/>
+								<DialogFooter>
+									<Button
+										onClick={handleSubmit}
+										disabled={isSubmitting || !slotName.trim()}
+									>
+										Submit
+									</Button>
+								</DialogFooter>
+							</div>
 						</DialogContent>
 					</Dialog>
 				</div>
 
-				<div className='flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between'>
+				<div className='flex flex-wrap items-center gap-4 mb-6'>
 					<Input
-						placeholder='Search slot calls...'
+						placeholder='Search slot name or requester...'
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
-						className='max-w-xs'
+						className='flex-grow max-w-sm'
 					/>
 
 					<Tabs
 						value={filter}
-						onValueChange={(value) => setFilter(value as FilterStatus)}
-						className='max-w-xs'
+						onValueChange={(val) => setFilter(val as FilterStatus)}
+						className='flex-grow max-w-lg'
 					>
 						<TabsList>
 							<TabsTrigger value='all'>All</TabsTrigger>
 							<TabsTrigger value='pending'>Pending</TabsTrigger>
 							<TabsTrigger value='accepted'>Accepted</TabsTrigger>
+							<TabsTrigger value='played'>Played</TabsTrigger>
 							<TabsTrigger value='rejected'>Rejected</TabsTrigger>
 						</TabsList>
 					</Tabs>
 				</div>
 
-				{isLoading && <p>Loading slot calls...</p>}
-
-				{!isLoading && filteredSlotCalls.length === 0 && (
-					<p>No slot calls found.</p>
+				{isLoading ? (
+					<div className='text-center text-white/70'>Loading...</div>
+				) : filteredSlotCalls.length === 0 ? (
+					<div className='text-center text-white/70'>No slot calls found.</div>
+				) : (
+					<div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
+						{filteredSlotCalls.map((call) => (
+							<SlotCallCard
+								key={call.id}
+								id={call.id}
+								slotName={call.slotName}
+								requester={call.requester}
+								timestamp={call.timestamp}
+								status={call.status}
+								x250Hit={call.x250Hit}
+								bonusCall={call.bonusCall}
+								isAdminView={isAdmin}
+								isUserView={!isAdmin}
+								onAccept={handleAccept}
+								onReject={handleReject}
+								onBonusSubmit={handleBonusSubmit}
+								onDelete={handleDelete}
+								onMarkPlayed={handleMarkPlayed}
+							/>
+						))}
+					</div>
 				)}
-
-				<div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-					{filteredSlotCalls.map((call) => (
-						<SlotCallCard
-							key={call.id}
-							id={call.id}
-							slotName={call.slotName}
-							requester={call.requester}
-							timestamp={call.timestamp}
-							status={call.status}
-							x250Hit={call.x250Hit}
-							bonusCall={call.bonusCall}
-							isAdminView={isAdmin}
-							isUserView={!isAdmin}
-							onAccept={handleAccept}
-							onReject={handleReject}
-							onBonusSubmit={handleBonusSubmit}
-							onDelete={handleDelete}
-						/>
-					))}
-				</div>
 			</main>
 			<Footer />
 		</div>
