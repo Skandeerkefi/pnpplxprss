@@ -33,7 +33,6 @@ export function SlotCallCard({
 	isUserView = false,
 	onBonusSubmit,
 }: SlotCallProps) {
-	const [x250Checked, setX250Checked] = useState(false);
 	const [bonusInput, setBonusInput] = useState("");
 
 	const showBonusInput = isUserView && x250Hit && !bonusCall;
@@ -55,13 +54,45 @@ export function SlotCallCard({
 			</div>
 
 			{/* Admin Controls */}
-			{isAdminView && status === "accepted" && (
-				<button
-					onClick={() => onAccept?.(id, x250Hit || false, "played")}
-					className='w-full py-1 mt-2 text-sm text-white bg-blue-700 rounded hover:bg-blue-800'
-				>
-					Mark as Played
-				</button>
+			{isAdminView && (
+				<div className='mt-4 space-y-2'>
+					<label className='flex items-center gap-2 text-sm text-[#38BDF8]'>
+						<input
+							type='checkbox'
+							checked={x250Hit || false}
+							onChange={() => onAccept?.(id, !x250Hit, status)}
+						/>
+						Mark as 250x Hit
+					</label>
+
+					{status === "pending" && (
+						<div className='flex gap-2'>
+							<button
+								onClick={() => onAccept?.(id, x250Hit || false, "accepted")}
+								className='flex items-center justify-center flex-1 gap-1 px-3 py-1 text-sm text-white bg-green-600 rounded hover:bg-green-700'
+							>
+								<Check className='w-4 h-4' /> Accept
+							</button>
+
+							<button
+								onClick={() => onReject?.(id)}
+								className='flex items-center justify-center flex-1 gap-1 px-3 py-1 text-sm text-white bg-red-600 rounded hover:bg-red-700'
+							>
+								<X className='w-4 h-4' /> Reject
+							</button>
+						</div>
+					)}
+
+					{/* Show "Mark as Played" only if status is accepted */}
+					{status === "accepted" && (
+						<button
+							onClick={() => onAccept?.(id, x250Hit || false, "played")}
+							className='w-full py-1 mt-2 text-sm text-white bg-blue-700 rounded hover:bg-blue-800'
+						>
+							Mark as Played
+						</button>
+					)}
+				</div>
 			)}
 
 			{/* Bonus Call Submitted */}
@@ -105,38 +136,40 @@ function StatusBadge({ status }: { status: SlotCallStatus }) {
 	const baseClass =
 		"text-xs px-2 py-0.5 rounded-full border font-medium inline-block";
 
-	if (status === "pending") {
-		return (
-			<span
-				className={`${baseClass} text-[#EA8105] border-[#EA8105] bg-[#EA8105]/20`}
-			>
-				Pending
-			</span>
-		);
+	switch (status) {
+		case "pending":
+			return (
+				<span
+					className={`${baseClass} text-[#EA8105] border-[#EA8105] bg-[#EA8105]/20`}
+				>
+					Pending
+				</span>
+			);
+		case "accepted":
+			return (
+				<span
+					className={`${baseClass} text-[#38BDF8] border-[#38BDF8] bg-[#38BDF8]/20`}
+				>
+					Accepted
+				</span>
+			);
+		case "rejected":
+			return (
+				<span
+					className={`${baseClass} text-[#C33B52] border-[#C33B52] bg-[#C33B52]/20`}
+				>
+					Rejected
+				</span>
+			);
+		case "played":
+			return (
+				<span
+					className={`${baseClass} text-green-400 border-green-400 bg-green-400/20`}
+				>
+					Played
+				</span>
+			);
+		default:
+			return null;
 	}
-	if (status === "accepted") {
-		return (
-			<span
-				className={`${baseClass} text-[#38BDF8] border-[#38BDF8] bg-[#38BDF8]/20`}
-			>
-				Accepted
-			</span>
-		);
-	}
-	if (status === "played") {
-		return (
-			<span
-				className={`${baseClass} text-[#00FF99] border-[#00FF99] bg-[#00FF99]/20`}
-			>
-				Played
-			</span>
-		);
-	}
-	return (
-		<span
-			className={`${baseClass} text-[#C33B52] border-[#C33B52] bg-[#C33B52]/20`}
-		>
-			Rejected
-		</span>
-	);
 }

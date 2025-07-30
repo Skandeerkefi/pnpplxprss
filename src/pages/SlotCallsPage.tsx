@@ -89,7 +89,7 @@ function SlotCallsPage() {
 	const handleAccept = async (
 		id: string,
 		newX250Value: boolean,
-		newStatus: SlotCallStatus = "accepted"
+		newStatus: "accepted" | "played" = "accepted"
 	) => {
 		const result = await updateSlotStatus(id, newStatus, newX250Value);
 		if (result.success) {

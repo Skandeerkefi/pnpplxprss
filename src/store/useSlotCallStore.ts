@@ -1,4 +1,3 @@
-// src/store/useSlotCallStore.ts
 import { create } from "zustand";
 import { useAuthStore } from "./useAuthStore";
 
@@ -55,14 +54,12 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 				}
 			);
 
-			if (!res.ok) {
-				const data = await res.json();
-				throw new Error(data.message || "Failed to add slot call");
-			}
+			if (!res.ok)
+				throw new Error(
+					(await res.json()).message || "Failed to add slot call"
+				);
 
-			const response = await res.json();
-			const newCall = response.slotCall;
-
+			const newCall = (await res.json()).slotCall;
 			set((state) => ({
 				slotCalls: [
 					{
@@ -104,10 +101,10 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 				}
 			);
 
-			if (!res.ok) {
-				const data = await res.json();
-				throw new Error(data.message || "Failed to submit bonus call");
-			}
+			if (!res.ok)
+				throw new Error(
+					(await res.json()).message || "Failed to submit bonus call"
+				);
 
 			const updated = (await res.json()).slotCall;
 			set((state) => ({
@@ -139,21 +136,16 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 				}
 			);
 
-			if (!res.ok) {
-				const data = await res.json();
-				throw new Error(data.message || "Failed to update slot call status");
-			}
+			if (!res.ok)
+				throw new Error(
+					(await res.json()).message || "Failed to update slot call status"
+				);
 
 			const updated = (await res.json()).slotCall;
-
 			set((state) => ({
 				slotCalls: state.slotCalls.map((call) =>
 					call.id === id
-						? {
-								...call,
-								status: updated.status,
-								x250Hit: updated.x250Hit,
-						  }
+						? { ...call, status: updated.status, x250Hit: updated.x250Hit }
 						: call
 				),
 			}));
@@ -184,21 +176,20 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 			if (!res.ok) throw new Error("Failed to fetch slot calls");
 
 			const data = await res.json();
-
-			const mapped = data.map((item: any) => ({
-				id: item._id,
-				slotName: item.name,
-				requester:
-					item.user?.kickUsername ||
-					useAuthStore.getState().user?.kickUsername ||
-					"You",
-				timestamp: new Date(item.createdAt).toLocaleString(),
-				status: item.status,
-				x250Hit: item.x250Hit,
-				bonusCall: item.bonusCall,
-			}));
-
-			set({ slotCalls: mapped });
+			set({
+				slotCalls: data.map((item: any) => ({
+					id: item._id,
+					slotName: item.name,
+					requester:
+						item.user?.kickUsername ||
+						useAuthStore.getState().user?.kickUsername ||
+						"You",
+					timestamp: new Date(item.createdAt).toLocaleString(),
+					status: item.status,
+					x250Hit: item.x250Hit,
+					bonusCall: item.bonusCall,
+				})),
+			});
 		} catch (error) {
 			console.error("Error fetching slot calls:", error);
 		}
