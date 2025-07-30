@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Clock, Check, X, Gift } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-export type SlotCallStatus = "pending" | "accepted" | "rejected" | "played";
+export type SlotCallStatus = "pending" | "accepted" | "rejected";
 
 interface SlotCallProps {
 	id: string;
@@ -17,8 +17,7 @@ interface SlotCallProps {
 	isAdminView?: boolean;
 	isUserView?: boolean;
 	onBonusSubmit?: (id: string, bonusSlot: string) => void;
-	onDelete?: (id: string) => void; // new prop for delete
-	onMarkPlayed?: (id: string) => void; // optional: to mark "played"
+	onDelete?: (id: string) => void;
 }
 
 export function SlotCallCard({
@@ -35,9 +34,10 @@ export function SlotCallCard({
 	isUserView = false,
 	onBonusSubmit,
 	onDelete,
-	onMarkPlayed,
 }: SlotCallProps) {
+	const [x250Checked, setX250Checked] = useState(false);
 	const [bonusInput, setBonusInput] = useState("");
+
 	const showBonusInput = isUserView && x250Hit && !bonusCall;
 
 	return (
@@ -59,17 +59,15 @@ export function SlotCallCard({
 			{/* Admin Controls */}
 			{isAdminView && (
 				<div className='mt-4 space-y-2'>
-					{/* Mark 250x Hit */}
 					<label className='flex items-center gap-2 text-sm text-[#38BDF8]'>
 						<input
 							type='checkbox'
 							checked={x250Hit || false}
-							onChange={() => onAccept?.(id, !x250Hit)}
+							onChange={() => onAccept?.(id, !x250Hit)} // Toggle x250Hit value
 						/>
 						Mark as 250x Hit
 					</label>
 
-					{/* Accept/Reject buttons only if pending */}
 					{status === "pending" && (
 						<div className='flex gap-2'>
 							<button
@@ -88,16 +86,6 @@ export function SlotCallCard({
 						</div>
 					)}
 
-					{/* Mark as Played if accepted */}
-					{status === "accepted" && onMarkPlayed && (
-						<button
-							onClick={() => onMarkPlayed(id)}
-							className='w-full py-1 mt-2 text-sm text-white bg-blue-600 rounded hover:bg-blue-700'
-						>
-							Mark as Played
-						</button>
-					)}
-
 					{/* Delete Button */}
 					<button
 						onClick={() => {
@@ -109,9 +97,9 @@ export function SlotCallCard({
 								onDelete?.(id);
 							}
 						}}
-						className='w-full py-1 mt-2 text-sm text-white bg-red-700 rounded hover:bg-red-800'
+						className='w-full py-1 mt-2 text-white bg-red-700 rounded hover:bg-red-800'
 					>
-						Delete Slot Call
+						Delete
 					</button>
 				</div>
 			)}
@@ -172,15 +160,6 @@ function StatusBadge({ status }: { status: SlotCallStatus }) {
 				className={`${baseClass} text-[#38BDF8] border-[#38BDF8] bg-[#38BDF8]/20`}
 			>
 				Accepted
-			</span>
-		);
-	}
-	if (status === "played") {
-		return (
-			<span
-				className={`${baseClass} text-[#10B981] border-[#10B981] bg-[#10B981]/20`}
-			>
-				Played
 			</span>
 		);
 	}

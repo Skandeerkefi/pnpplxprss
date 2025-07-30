@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useDebounce } from "@/hooks/use-debounce";
 
-type FilterStatus = "all" | "pending" | "accepted" | "rejected" | "played";
+type FilterStatus = "all" | "pending" | "accepted" | "rejected";
 
 function SlotCallsPage() {
 	const {
@@ -29,6 +29,7 @@ function SlotCallsPage() {
 		updateSlotStatus,
 		submitBonusCall,
 		fetchSlotCalls,
+		isSubmitting,
 		deleteSlotCall,
 	} = useSlotCallStore();
 
@@ -114,20 +115,6 @@ function SlotCallsPage() {
 		}
 	};
 
-	const handleMarkPlayed = async (id: string) => {
-		const result = await updateSlotStatus(id, "played");
-		if (result.success) {
-			toast({ title: "Updated", description: "Marked as played." });
-			await fetchSlotCalls();
-		} else {
-			toast({
-				title: "Error",
-				description: result.error || "Failed to mark as played",
-				variant: "destructive",
-			});
-		}
-	};
-
 	const handleBonusSubmit = async (id: string, slotName: string) => {
 		const result = await submitBonusCall(id, slotName);
 		if (result.success) {
@@ -148,8 +135,11 @@ function SlotCallsPage() {
 	const handleDelete = async (id: string) => {
 		const result = await deleteSlotCall(id);
 		if (result.success) {
-			toast({ title: "Deleted", description: "Slot call deleted." });
-			await fetchSlotCalls();
+			toast({
+				title: "Deleted",
+				description: "Slot call deleted successfully.",
+			});
+			// fetchSlotCalls already called inside deleteSlotCall
 		} else {
 			toast({
 				title: "Error",
@@ -163,99 +153,88 @@ function SlotCallsPage() {
 		<div className='flex flex-col min-h-screen bg-[#191F3B] text-white'>
 			<Navbar />
 			<main className='container flex-grow py-8'>
-				<div className='flex items-center justify-between mb-6'>
-					<h1 className='text-3xl font-bold text-white'>Slot Calls</h1>
-					{!isAdmin && (
-						<Dialog>
-							<DialogTrigger asChild>
-								<Button className='bg-[#EA8105] hover:bg-[#C33B52] text-white'>
-									<Plus className='w-4 h-4 mr-1' /> Request Slot
+				<div className='flex flex-col gap-4 mb-8 sm:flex-row sm:items-center sm:justify-between'>
+					<h1 className='text-3xl font-bold'>Slot Calls</h1>
+
+					<Dialog>
+						<DialogTrigger asChild>
+							<Button variant='outline' className='flex items-center gap-2'>
+								<Plus className='w-5 h-5' />
+								New Slot Call
+							</Button>
+						</DialogTrigger>
+
+						<DialogContent className='sm:max-w-lg'>
+							<DialogHeader>
+								<DialogTitle>Submit a New Slot Call</DialogTitle>
+								<DialogDescription>
+									Enter the name of the slot machine you want to call.
+								</DialogDescription>
+							</DialogHeader>
+							<Input
+								autoFocus
+								type='text'
+								value={slotName}
+								onChange={(e) => setSlotName(e.target.value)}
+								placeholder='Slot Name'
+								className='mt-4'
+							/>
+							<DialogFooter>
+								<Button onClick={handleSubmit} disabled={isSubmitting}>
+									Submit
 								</Button>
-							</DialogTrigger>
-							<DialogContent className='bg-[#191F3B] text-white border border-[#EA6D0C]/40 rounded-lg'>
-								<DialogHeader>
-									<DialogTitle>Request a Slot</DialogTitle>
-									<DialogDescription>
-										Ask pnpplxprss to play a slot live on stream.
-									</DialogDescription>
-								</DialogHeader>
-								<div className='py-4'>
-									<label htmlFor='slotName' className='block mb-2 text-sm'>
-										Slot Name
-									</label>
-									<Input
-										id='slotName'
-										placeholder='e.g. Wanted Dead or a Wild'
-										value={slotName}
-										onChange={(e) => setSlotName(e.target.value)}
-										className='bg-[#191F3B] border border-[#EA6D0C] text-white'
-									/>
-								</div>
-								<DialogFooter>
-									<Button
-										onClick={handleSubmit}
-										disabled={false}
-										className='bg-[#EA8105] hover:bg-[#C33B52]'
-									>
-										Submit
-									</Button>
-								</DialogFooter>
-							</DialogContent>
-						</Dialog>
-					)}
+							</DialogFooter>
+						</DialogContent>
+					</Dialog>
 				</div>
 
-				<div className='flex flex-col items-center gap-4 mb-4 md:flex-row'>
-					<div className='relative w-full md:w-1/2'>
-						<Search className='absolute w-4 h-4 left-3 top-1/2 transform -translate-y-1/2 text-[#C33B52]' />
-						<Input
-							placeholder='Search slot calls...'
-							value={searchQuery}
-							onChange={(e) => setSearchQuery(e.target.value)}
-							className='pl-9 bg-[#191F3B] border border-[#EA6D0C] text-white'
-						/>
-					</div>
-					<div className='flex items-center gap-2'>
-						<Filter className='w-4 h-4 text-[#C33B52]' />
-						<Tabs onValueChange={(val) => setFilter(val as FilterStatus)}>
-							<TabsList>
-								{["all", "pending", "accepted", "played", "rejected"].map(
-									(f) => (
-										<TabsTrigger
-											key={f}
-											value={f}
-											className='text-[#EA6D0C] hover:bg-[#EA6D0C] hover:text-white'
-										>
-											{f.charAt(0).toUpperCase() + f.slice(1)}
-										</TabsTrigger>
-									)
-								)}
-							</TabsList>
-						</Tabs>
-					</div>
+				<div className='flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between'>
+					<Input
+						placeholder='Search slot calls...'
+						value={searchQuery}
+						onChange={(e) => setSearchQuery(e.target.value)}
+						className='max-w-xs'
+					/>
+
+					<Tabs
+						value={filter}
+						onValueChange={(value) => setFilter(value as FilterStatus)}
+						className='max-w-xs'
+					>
+						<TabsList>
+							<TabsTrigger value='all'>All</TabsTrigger>
+							<TabsTrigger value='pending'>Pending</TabsTrigger>
+							<TabsTrigger value='accepted'>Accepted</TabsTrigger>
+							<TabsTrigger value='rejected'>Rejected</TabsTrigger>
+						</TabsList>
+					</Tabs>
 				</div>
+
+				{isLoading && <p>Loading slot calls...</p>}
+
+				{!isLoading && filteredSlotCalls.length === 0 && (
+					<p>No slot calls found.</p>
+				)}
 
 				<div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-					{!isLoading &&
-						filteredSlotCalls.map((call) => (
-							<SlotCallCard
-								key={call.id}
-								id={call.id}
-								slotName={call.slotName}
-								requester={call.requester}
-								timestamp={call.timestamp}
-								status={call.status}
-								x250Hit={call.x250Hit}
-								bonusCall={call.bonusCall}
-								isAdminView={isAdmin}
-								isUserView={!isAdmin}
-								onAccept={handleAccept}
-								onReject={handleReject}
-								onBonusSubmit={handleBonusSubmit}
-								onDelete={handleDelete}
-								onMarkPlayed={handleMarkPlayed}
-							/>
-						))}
+					{filteredSlotCalls.map((call) => (
+						<SlotCallCard
+							key={call.id}
+							id={call.id}
+							slotName={call.slotName}
+							requester={call.requester}
+							timestamp={call.timestamp}
+							status={call.status}
+							x250Hit={call.x250Hit}
+							bonusCall={call.bonusCall}
+							isAdminView={isAdmin}
+							isUserView={!isAdmin}
+							onAccept={handleAccept}
+							onReject={handleReject}
+							onBonusSubmit={handleBonusSubmit}
+							onDelete={handleDelete}
+						/>
+					))}
 				</div>
 			</main>
 			<Footer />
