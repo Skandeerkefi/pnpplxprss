@@ -35,7 +35,19 @@ function SlotCallsPage() {
 
 	const { user, token } = useAuthStore();
 	const { toast } = useToast();
-
+	const handleToggleX250 = async (id: string, newValue: boolean) => {
+		const result = await updateSlotStatus(id, "played", newValue); // keep status 'played'
+		if (result.success) {
+			toast({ title: "Updated", description: "x250 hit toggled." });
+			await fetchSlotCalls();
+		} else {
+			toast({
+				title: "Error",
+				description: result.error || "Failed to toggle x250",
+				variant: "destructive",
+			});
+		}
+	};
 	const [searchQuery, setSearchQuery] = useState("");
 	const [slotName, setSlotName] = useState("");
 	const [filter, setFilter] = useState<FilterStatus>("all");
@@ -260,6 +272,7 @@ function SlotCallsPage() {
 								onBonusSubmit={handleBonusSubmit}
 								onDelete={handleDelete}
 								onMarkPlayed={handleMarkPlayed}
+								onToggleX250={handleToggleX250}
 							/>
 						))}
 					</div>
