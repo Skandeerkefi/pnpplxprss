@@ -1,3 +1,4 @@
+// SlotCallCard.tsx
 import { useState } from "react";
 import { Clock, Check, X, Gift } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -15,10 +16,11 @@ interface SlotCallProps {
 	onAccept?: (id: string, x250Hit: boolean) => void;
 	onReject?: (id: string) => void;
 	onDelete?: (id: string) => void;
-	isAdminView?: boolean;
-	isUserView?: boolean;
 	onBonusSubmit?: (id: string, bonusSlot: string) => void;
 	onMarkPlayed?: (id: string) => void;
+	onToggleX250?: (id: string, newValue: boolean) => void;
+	isAdminView?: boolean;
+	isUserView?: boolean;
 }
 
 export function SlotCallCard({
@@ -32,10 +34,11 @@ export function SlotCallCard({
 	onAccept,
 	onReject,
 	onDelete,
-	isAdminView = false,
-	isUserView = false,
 	onBonusSubmit,
 	onMarkPlayed,
+	onToggleX250,
+	isAdminView = false,
+	isUserView = false,
 }: SlotCallProps) {
 	const [bonusInput, setBonusInput] = useState("");
 	const showBonusInput = isUserView && x250Hit && !bonusCall;
@@ -63,7 +66,7 @@ export function SlotCallCard({
 						<input
 							type='checkbox'
 							checked={x250Hit || false}
-							onChange={() => onAccept?.(id, !x250Hit)}
+							onChange={() => onToggleX250?.(id, !x250Hit)}
 							disabled={status !== "played"}
 						/>
 						Mark as 250x Hit
