@@ -15,15 +15,15 @@ import { useGiveawayStore } from "@/store/useGiveawayStore";
 function HomePage() {
 	const { slotCalls } = useSlotCallStore();
 	const { giveaways } = useGiveawayStore();
-	const { weeklyLeaderboard, fetchLeaderboard } = useLeaderboardStore();
+	const { biweeklyLeaderboard, fetchLeaderboard } = useLeaderboardStore();
 
-	const topLeaderboard = Array.isArray(weeklyLeaderboard)
-		? weeklyLeaderboard.slice(0, 5)
+	const topLeaderboard = Array.isArray(biweeklyLeaderboard)
+		? biweeklyLeaderboard.slice(0, 5)
 		: [];
 
 	useEffect(() => {
-		if (weeklyLeaderboard.length === 0) {
-			fetchLeaderboard("weekly");
+		if (biweeklyLeaderboard.length === 0) {
+			fetchLeaderboard("biweekly");
 		}
 	}, []);
 
@@ -164,7 +164,7 @@ function HomePage() {
 						</Button>
 					</div>
 
-					<LeaderboardTable period='weekly' data={topLeaderboard} />
+					<LeaderboardTable period='biweekly' data={topLeaderboard} />
 				</section>
 
 				{/* Features */}
