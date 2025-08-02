@@ -181,8 +181,10 @@ function LeaderboardPage() {
 							Biweekly Leaderboard
 						</h2>
 						<p className='mt-2 text-sm text-[#EA6D0C]'>
-							Period: {start_at} → {end_at}
+							Period: {new Date(range.start_at).toLocaleString()} →{" "}
+							{new Date(range.end_at).toLocaleString()}
 						</p>
+
 						<p className='mt-1 text-sm text-[#38BDF8]'>{timeLeft}</p>
 					</div>
 					{isLoading ? (
