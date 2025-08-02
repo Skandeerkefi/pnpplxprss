@@ -28,8 +28,9 @@ function HomePage() {
 	}, []);
 
 	const { end_at } = getCurrentBiweeklyRange();
-	const [timeLeft, setTimeLeft] = useState("");
 
+	const [range, setRange] = useState(() => getCurrentBiweeklyRange());
+	const [timeLeft, setTimeLeft] = useState<string>("");
 	useEffect(() => {
 		const interval = setInterval(() => {
 			const now = new Date();

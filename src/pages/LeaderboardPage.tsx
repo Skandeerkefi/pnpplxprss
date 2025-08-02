@@ -27,6 +27,7 @@ function LeaderboardPage() {
 	}, [fetchLeaderboard]);
 
 	const { start_at, end_at } = getCurrentBiweeklyRange();
+	const [range, setRange] = useState(() => getCurrentBiweeklyRange());
 
 	const [timeLeft, setTimeLeft] = useState<string>("");
 
