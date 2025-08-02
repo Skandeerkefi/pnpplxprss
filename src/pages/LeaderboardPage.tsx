@@ -32,13 +32,14 @@ function LeaderboardPage() {
 
 	useEffect(() => {
 		const interval = setInterval(() => {
-			const endDate = new Date(end_at);
 			const now = new Date();
-			const diff = endDate.getTime() - now.getTime();
+			const end = new Date(range.end_at);
+			const diff = end.getTime() - now.getTime();
 
 			if (diff <= 0) {
-				setTimeLeft("Leaderboard period has ended.");
-				clearInterval(interval);
+				// Update to the next period when time expires
+				const newRange = getCurrentBiweeklyRange();
+				setRange(newRange);
 				return;
 			}
 
@@ -51,7 +52,7 @@ function LeaderboardPage() {
 		}, 1000);
 
 		return () => clearInterval(interval);
-	}, [end_at]);
+	}, [range]);
 
 	return (
 		<div className='flex flex-col min-h-screen bg-[#191F3B] text-white'>

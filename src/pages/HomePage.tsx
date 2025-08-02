@@ -33,12 +33,12 @@ function HomePage() {
 	useEffect(() => {
 		const interval = setInterval(() => {
 			const now = new Date();
-			const end = new Date(end_at);
+			const end = new Date(range.end_at);
 			const diff = end.getTime() - now.getTime();
 
 			if (diff <= 0) {
-				setTimeLeft("00d : 00h : 00m : 00s");
-				clearInterval(interval);
+				const newRange = getCurrentBiweeklyRange();
+				setRange(newRange);
 				return;
 			}
 
@@ -57,7 +57,7 @@ function HomePage() {
 		}, 1000);
 
 		return () => clearInterval(interval);
-	}, [end_at]);
+	}, [range]);
 
 	// Simple time extractor for labels
 	function renderTimeUnit(timeStr: string, unit: "d" | "h" | "m" | "s") {
