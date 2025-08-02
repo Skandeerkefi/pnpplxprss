@@ -134,26 +134,19 @@ export const useLeaderboardStore = create<LeaderboardState>((set, get) => ({
 	},
 }));
 
-export const getCurrentBiweeklyRange = (): {
-	start_at: string;
-	end_at: string;
-} => {
+export function getCurrentBiweeklyRange() {
+	// Base reset: August 2, 2025 at 8:00 PM EST (EDT = UTC-4)
+	// So in UTC: 2025-08-03T00:00:00.000Z
+	const initialResetUTC = new Date(Date.UTC(2025, 7, 3, 0, 0, 0)); // Aug 3, 2025 @ 00:00 UTC
 	const now = new Date();
-	const firstStart = new Date("2025-07-20T00:00:00Z");
-	const msInDay = 1000 * 60 * 60 * 24;
-	const daysSinceStart = Math.floor(
-		(now.getTime() - firstStart.getTime()) / msInDay
-	);
-	const currentCycle = Math.floor(daysSinceStart / 14);
+	const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000;
 
-	const startDate = new Date(firstStart);
-	startDate.setDate(firstStart.getDate() + currentCycle * 14);
+	// Find the latest period that includes "now"
+	let end = new Date(initialResetUTC.getTime());
+	while (end.getTime() <= now.getTime()) {
+		end = new Date(end.getTime() + TWO_WEEKS_MS);
+	}
 
-	const endDate = new Date(startDate);
-	endDate.setDate(startDate.getDate() + 13);
-
-	return {
-		start_at: startDate.toISOString().split("T")[0],
-		end_at: endDate.toISOString().split("T")[0],
-	};
-};
+	const start = new Date(end.getTime() - TWO_WEEKS_MS);
+	return { start, end };
+}
