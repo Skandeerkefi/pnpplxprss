@@ -181,8 +181,27 @@ function LeaderboardPage() {
 							Biweekly Leaderboard
 						</h2>
 						<p className='mt-2 text-sm text-[#EA6D0C]'>
-							Period: {new Date(range.start_at).toLocaleString()} →{" "}
-							{new Date(range.end_at).toLocaleString()}
+							Period:{" "}
+							{new Date(range.start_at).toLocaleString("en-US", {
+								timeZone: "America/New_York",
+								year: "numeric",
+								month: "2-digit",
+								day: "2-digit",
+								hour: "2-digit",
+								minute: "2-digit",
+								hour12: true,
+							})}{" "}
+							→{" "}
+							{new Date(range.end_at).toLocaleString("en-US", {
+								timeZone: "America/New_York",
+								year: "numeric",
+								month: "2-digit",
+								day: "2-digit",
+								hour: "2-digit",
+								minute: "2-digit",
+								hour12: true,
+							})}{" "}
+							(ET)
 						</p>
 
 						<p className='mt-1 text-sm text-[#38BDF8]'>{timeLeft}</p>

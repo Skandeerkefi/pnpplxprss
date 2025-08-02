@@ -135,7 +135,8 @@ export const useLeaderboardStore = create<LeaderboardState>((set, get) => ({
 }));
 
 export function getCurrentBiweeklyRange() {
-	const initialResetUTC = new Date(Date.UTC(2025, 7, 3, 0, 0, 0)); // Aug 3, 2025 @ 00:00 UTC
+	// August 2, 2025 at 8:00 PM EST = August 3, 2025 at 00:00 UTC
+	const initialResetUTC = new Date(Date.UTC(2025, 7, 3, 0, 0, 0)); // 2025-08-03T00:00:00.000Z
 	const now = new Date();
 	const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000;
 
@@ -145,5 +146,8 @@ export function getCurrentBiweeklyRange() {
 	}
 	const start = new Date(end.getTime() - TWO_WEEKS_MS);
 
-	return { start_at: start.toISOString(), end_at: end.toISOString() };
+	return {
+		start_at: start.toISOString(),
+		end_at: end.toISOString(),
+	};
 }
