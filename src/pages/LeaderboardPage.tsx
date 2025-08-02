@@ -201,7 +201,7 @@ function LeaderboardPage() {
 								minute: "2-digit",
 								hour12: true,
 							})}{" "}
-							(ET)
+							(EST)
 						</p>
 
 						<p className='mt-1 text-sm text-[#38BDF8]'>{timeLeft}</p>
