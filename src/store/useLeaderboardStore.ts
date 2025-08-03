@@ -17,7 +17,11 @@ interface LeaderboardState {
 	isLoading: boolean;
 	error: string | null;
 	setPeriod: (period: LeaderboardPeriod) => void;
-	fetchLeaderboard: (period: LeaderboardPeriod) => Promise<void>;
+	fetchLeaderboard: (
+		period: LeaderboardPeriod,
+		start_at?: string,
+		end_at?: string
+	) => Promise<void>;
 }
 
 const API_URL = "https://pnpplxprssdata.onrender.com/api/affiliates";
@@ -39,7 +43,7 @@ const getDateRange = (
 		startDate.setDate(firstStart.getDate() + currentCycle * 14);
 
 		const endDate = new Date(startDate);
-		endDate.setDate(startDate.getDate() + 13); // 14-day range
+		endDate.setDate(startDate.getDate() + 13);
 
 		return {
 			start_at: startDate.toISOString().split("T")[0],
@@ -47,18 +51,15 @@ const getDateRange = (
 		};
 	}
 
-	// Default logic for weekly and monthly
 	const endDate = new Date(now);
 	endDate.setHours(23, 59, 59, 999);
 
 	const startDate = new Date(now);
-
 	if (period === "weekly") {
 		startDate.setDate(now.getDate() - 7);
 	} else if (period === "monthly") {
 		startDate.setFullYear(now.getFullYear(), now.getMonth(), 1);
 	}
-
 	startDate.setHours(0, 0, 0, 0);
 
 	return {
@@ -93,13 +94,15 @@ export const useLeaderboardStore = create<LeaderboardState>((set, get) => ({
 	isLoading: false,
 	error: null,
 	setPeriod: (period) => set({ period }),
-	fetchLeaderboard: async (period) => {
+	fetchLeaderboard: async (period, start_at, end_at) => {
 		set({ isLoading: true, error: null });
 
 		try {
-			const { start_at, end_at } = getDateRange(period);
+			const range =
+				start_at && end_at ? { start_at, end_at } : getDateRange(period);
+
 			const response = await fetch(
-				`${API_URL}?start_at=${start_at}&end_at=${end_at}`
+				`${API_URL}?start_at=${range.start_at}&end_at=${range.end_at}`
 			);
 
 			if (!response.ok) {
@@ -112,10 +115,8 @@ export const useLeaderboardStore = create<LeaderboardState>((set, get) => ({
 			}
 
 			const data = await response.json();
-			console.log("API Response:", data);
 			const processedData = processApiData(data);
 
-			// ✅ Set the correct leaderboard
 			if (period === "weekly") {
 				set({ weeklyLeaderboard: processedData });
 			} else if (period === "biweekly") {
@@ -135,8 +136,7 @@ export const useLeaderboardStore = create<LeaderboardState>((set, get) => ({
 }));
 
 export function getCurrentBiweeklyRange() {
-	// August 2, 2025 at 8:00 PM EST = August 3, 2025 at 00:00 UTC
-	const initialResetUTC = new Date(Date.UTC(2025, 7, 3, 0, 0, 0)); // 2025-08-03T00:00:00.000Z
+	const initialResetUTC = new Date(Date.UTC(2025, 7, 3, 0, 0, 0));
 	const now = new Date();
 	const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000;
 
@@ -144,6 +144,19 @@ export function getCurrentBiweeklyRange() {
 	while (end.getTime() <= now.getTime()) {
 		end = new Date(end.getTime() + TWO_WEEKS_MS);
 	}
+	const start = new Date(end.getTime() - TWO_WEEKS_MS);
+
+	return {
+		start_at: start.toISOString(),
+		end_at: end.toISOString(),
+	};
+}
+
+export function getPreviousBiweeklyRange() {
+	const current = getCurrentBiweeklyRange();
+	const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000;
+
+	const end = new Date(current.start_at);
 	const start = new Date(end.getTime() - TWO_WEEKS_MS);
 
 	return {

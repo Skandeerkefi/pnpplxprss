@@ -4,8 +4,8 @@ import { Footer } from "@/components/Footer";
 import { LeaderboardTable } from "@/components/LeaderboardTable";
 import {
 	useLeaderboardStore,
-	LeaderboardPeriod,
 	getCurrentBiweeklyRange,
+	getPreviousBiweeklyRange,
 	LeaderboardPlayer,
 } from "@/store/useLeaderboardStore";
 import { Crown, Info, Loader2, Trophy, Award, Medal } from "lucide-react";
@@ -22,23 +22,34 @@ function LeaderboardPage() {
 	const { biweeklyLeaderboard, fetchLeaderboard, isLoading, error } =
 		useLeaderboardStore();
 
-	useEffect(() => {
-		fetchLeaderboard("biweekly");
-	}, [fetchLeaderboard]);
-
-	const { start_at, end_at } = getCurrentBiweeklyRange();
-	const [range, setRange] = useState(() => getCurrentBiweeklyRange());
-
+	const [viewPrevious, setViewPrevious] = useState(false);
+	const [range, setRange] = useState(() =>
+		viewPrevious ? getPreviousBiweeklyRange() : getCurrentBiweeklyRange()
+	);
 	const [timeLeft, setTimeLeft] = useState<string>("");
 
 	useEffect(() => {
+		const selectedRange = viewPrevious
+			? getPreviousBiweeklyRange()
+			: getCurrentBiweeklyRange();
+		setRange(selectedRange);
+
+		// Pass only YYYY-MM-DD format to fetchLeaderboard
+		const start_at = selectedRange.start_at.split("T")[0];
+		const end_at = selectedRange.end_at.split("T")[0];
+
+		fetchLeaderboard("biweekly", start_at, end_at);
+	}, [viewPrevious, fetchLeaderboard]);
+
+	useEffect(() => {
 		const interval = setInterval(() => {
+			if (viewPrevious) return; // no countdown on previous
+
 			const now = new Date();
 			const end = new Date(range.end_at);
 			const diff = end.getTime() - now.getTime();
 
 			if (diff <= 0) {
-				// Update to the next period when time expires
 				const newRange = getCurrentBiweeklyRange();
 				setRange(newRange);
 				return;
@@ -53,19 +64,17 @@ function LeaderboardPage() {
 		}, 1000);
 
 		return () => clearInterval(interval);
-	}, [range]);
+	}, [range, viewPrevious]);
 
 	return (
 		<div className='flex flex-col min-h-screen bg-[#191F3B] text-white'>
 			<Navbar />
-
 			<main className='container flex-grow py-8'>
 				<div className='flex items-center justify-between mb-8'>
 					<div className='flex items-center gap-2'>
 						<Crown className='w-6 h-6 text-[#EA6D0C]' />
 						<h1 className='text-3xl font-bold'>Rainbet Leaderboard</h1>
 					</div>
-
 					<TooltipProvider>
 						<Tooltip>
 							<TooltipTrigger asChild>
@@ -77,35 +86,29 @@ function LeaderboardPage() {
 							<TooltipContent className='max-w-xs bg-[#191F3B] text-white border border-[#EA6D0C] shadow-lg'>
 								<p>
 									The leaderboard ranks players based on their total wager
-									amount using the PnpplXprss affiliate code on Rainbet. Higher
-									wagers result in a better ranking.
+									amount using the PnpplXprss affiliate code on Rainbet.
 								</p>
 							</TooltipContent>
 						</Tooltip>
 					</TooltipProvider>
 				</div>
 
-				<div className='p-6 mb-8 rounded-lg bg-[#1E2547] border border-[#EA6D0C]/30'>
-					<p className='mb-4 text-[#C33B52]'>
-						Use affiliate code{" "}
-						<span className='font-semibold text-[#EA6D0C]'>PnpplXprss</span> on
-						<a
-							href='https://rainbet.com'
-							target='_blank'
-							rel='noreferrer'
-							className='mx-1 text-[#38BDF8] hover:text-[#EA6D0C]'
-						>
-							Rainbet
-						</a>
-						to appear on this leaderboard and compete for rewards!
-					</p>
-
-					<div className='flex items-center gap-4'>
-						<div className='px-3 py-1.5 rounded-md bg-[#EA6D0C]/10 flex items-center'>
-							<span className='text-[#C33B52]'>Affiliate Code:</span>
-							<span className='ml-2 font-bold text-[#EA6D0C]'>pnpplxprss</span>
-						</div>
-					</div>
+				{/* Toggle Period */}
+				<div className='flex justify-center gap-4 mb-6'>
+					<Button
+						variant={viewPrevious ? "outline" : "default"}
+						className={`bg-[#AF2D03] text-white hover:bg-[#C33B52]`}
+						onClick={() => setViewPrevious(false)}
+					>
+						Current
+					</Button>
+					<Button
+						variant={viewPrevious ? "default" : "outline"}
+						className={`bg-[#1E2547] border border-[#EA6D0C] text-white hover:bg-[#EA6D0C]`}
+						onClick={() => setViewPrevious(true)}
+					>
+						Previous
+					</Button>
 				</div>
 
 				{error && (
@@ -119,7 +122,6 @@ function LeaderboardPage() {
 					</Alert>
 				)}
 
-				{/* Reward Cards */}
 				<div className='mb-8'>
 					<h2 className='mb-6 text-2xl font-bold text-center text-white'>
 						Top Players
@@ -174,52 +176,52 @@ function LeaderboardPage() {
 					</div>
 				</div>
 
-				{/* Leaderboard Table */}
-				<div>
-					<div className='flex flex-col items-center justify-center mb-4'>
-						<h2 className='text-xl font-semibold text-center text-[#ffffff] border-2 border-[#38BDF8] rounded-md py-2 px-6 inline-block'>
-							Biweekly Leaderboard
-						</h2>
-						<p className='mt-2 text-sm text-[#EA6D0C]'>
-							Period:{" "}
-							{new Date(range.start_at).toLocaleString("en-US", {
-								timeZone: "America/New_York",
-								year: "numeric",
-								month: "2-digit",
-								day: "2-digit",
-								hour: "2-digit",
-								minute: "2-digit",
-								hour12: true,
-							})}{" "}
-							→{" "}
-							{new Date(range.end_at).toLocaleString("en-US", {
-								timeZone: "America/New_York",
-								year: "numeric",
-								month: "2-digit",
-								day: "2-digit",
-								hour: "2-digit",
-								minute: "2-digit",
-								hour12: true,
-							})}{" "}
-							(EST)
-						</p>
-
+				<div className='flex flex-col items-center justify-center mb-4'>
+					<h2 className='text-xl font-semibold text-center text-[#ffffff] border-2 border-[#38BDF8] rounded-md py-2 px-6 inline-block'>
+						{viewPrevious
+							? "Previous Biweekly Leaderboard"
+							: "Current Biweekly Leaderboard"}
+					</h2>
+					<p className='mt-2 text-sm text-[#EA6D0C]'>
+						Period:{" "}
+						{new Date(range.start_at).toLocaleString("en-US", {
+							timeZone: "America/New_York",
+							year: "numeric",
+							month: "2-digit",
+							day: "2-digit",
+							hour: "2-digit",
+							minute: "2-digit",
+							hour12: true,
+						})}{" "}
+						→{" "}
+						{new Date(range.end_at).toLocaleString("en-US", {
+							timeZone: "America/New_York",
+							year: "numeric",
+							month: "2-digit",
+							day: "2-digit",
+							hour: "2-digit",
+							minute: "2-digit",
+							hour12: true,
+						})}{" "}
+						(EST)
+					</p>
+					{!viewPrevious && (
 						<p className='mt-1 text-sm text-[#38BDF8]'>{timeLeft}</p>
-					</div>
-					{isLoading ? (
-						<div className='flex items-center justify-center h-64'>
-							<Loader2 className='w-8 h-8 animate-spin text-[#EA6D0C]' />
-						</div>
-					) : (
-						<LeaderboardTable
-							period='biweekly'
-							data={biweeklyLeaderboard}
-							isLoading={isLoading}
-						/>
 					)}
 				</div>
-			</main>
 
+				{isLoading ? (
+					<div className='flex items-center justify-center h-64'>
+						<Loader2 className='w-8 h-8 animate-spin text-[#EA6D0C]' />
+					</div>
+				) : (
+					<LeaderboardTable
+						period='biweekly'
+						data={biweeklyLeaderboard}
+						isLoading={isLoading}
+					/>
+				)}
+			</main>
 			<Footer />
 		</div>
 	);
@@ -252,7 +254,7 @@ function RewardCard({
 						<p className='font-medium'>{player.username}</p>
 						<p className='text-[#C33B52]'>${player.wager.toLocaleString()}</p>
 						<a
-							href='https://discord.gg/3eVUWD4BtF'
+							href='https://discord.com/invite/A5TdPxB5nN'
 							target='_blank'
 							rel='noreferrer'
 							className='w-full mt-4'
