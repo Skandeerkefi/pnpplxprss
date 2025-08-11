@@ -43,7 +43,7 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 		set({ isSubmitting: true });
 		try {
 			const res = await fetch(
-				"https://pnpplxprssdata-8ss0.onrender.com/api/slot-calls",
+				"https://pnpplxprssdata-yj6v.onrender.com/api/slot-calls",
 				{
 					method: "POST",
 					headers: {
@@ -92,7 +92,7 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 
 		try {
 			const res = await fetch(
-				`https://pnpplxprssdata-8ss0.onrender.com/api/slot-calls/${id}/bonus-call`,
+				`https://pnpplxprssdata-yj6v.onrender.com/api/slot-calls/${id}/bonus-call`,
 				{
 					method: "POST",
 					headers: {
@@ -127,7 +127,7 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 
 		try {
 			const res = await fetch(
-				`https://pnpplxprssdata-8ss0.onrender.com/api/slot-calls/${id}/status`,
+				`https://pnpplxprssdata-yj6v.onrender.com/api/slot-calls/${id}/status`,
 				{
 					method: "POST",
 					headers: {
@@ -169,7 +169,7 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 
 		try {
 			const res = await fetch(
-				`https://pnpplxprssdata-8ss0.onrender.com/api/slot-calls/${id}`,
+				`https://pnpplxprssdata-yj6v.onrender.com/api/slot-calls/${id}`,
 				{
 					method: "DELETE",
 					headers: {
@@ -200,8 +200,8 @@ export const useSlotCallStore = create<SlotCallState>((set, get) => ({
 
 		const url =
 			userRole === "admin"
-				? "https://pnpplxprssdata-8ss0.onrender.com/api/slot-calls"
-				: "https://pnpplxprssdata-8ss0.onrender.com/api/slot-calls/my";
+				? "https://pnpplxprssdata-yj6v.onrender.com/api/slot-calls"
+				: "https://pnpplxprssdata-yj6v.onrender.com/api/slot-calls/my";
 
 		try {
 			const res = await fetch(url, {

@@ -11,7 +11,7 @@ export default function SlotOverlay() {
 		const fetchOverlayCalls = async () => {
 			try {
 				const res = await fetch(
-					"https://pnpplxprssdata.onrender.com/api/slot-calls",
+					"https://pnpplxprssdata-yj6v.onrender.com/api/slot-calls",
 					{
 						headers: {
 							Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ODdiMjlkNjgwYWE1MzZmOTdiYjI1NCIsInJvbGUiOiJhZG1pbiIsImtpY2tVc2VybmFtZSI6IlBucHBsWHByc3MiLCJpYXQiOjE3NTQ2NzQ4NTMsImV4cCI6MTc1NTI3OTY1M30.odf3Lb7vJViZ6Aq-h-k95s803slP7nIeqFxvvDmRNkk`,

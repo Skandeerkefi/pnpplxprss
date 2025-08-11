@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-	 baseURL: "https://pnpplxprssdata-8ss0.onrender.com",
+	baseURL: "https://pnpplxprssdata-yj6v.onrender.com",
 	// baseURL: "http://localhost:3000",
 	// Your backend URL
 });
