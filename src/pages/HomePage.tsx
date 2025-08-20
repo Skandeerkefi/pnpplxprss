@@ -93,7 +93,7 @@ function HomePage() {
 						<p className='mb-8 text-lg md:text-xl text-[#FFFFFF]'>
 							Join the community for exciting gambling streams, giveaways, slot
 							calls, and leaderboard competitions with affiliate code{" "}
-							<span className='font-bold text-[#EA6D0C]'>PnpplXprss</span>
+							<span className='font-bold text-[#EA6D0C]'>pnppl</span>
 						</p>
 
 						<div className='flex flex-col justify-center gap-4 sm:flex-row'>
@@ -117,11 +117,11 @@ function HomePage() {
 								asChild
 							>
 								<a
-									href='https://rainbet.com/?r=pnpplxprss'
+									href='https://rainbet.com/?r=pnppl'
 									target='_blank'
 									rel='noreferrer'
 								>
-									Join Rainbet with Code: pnpplxprss
+									Join Rainbet with Code: pnppl
 								</a>
 							</Button>
 						</div>
