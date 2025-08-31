@@ -86,7 +86,7 @@ function LeaderboardPage() {
 							<TooltipContent className='max-w-xs bg-[#191F3B] text-white border border-[#EA6D0C] shadow-lg'>
 								<p>
 									The leaderboard ranks players based on their total wager
-									amount using the PnpplXprss affiliate code on Rainbet.
+									amount using the pnppl affiliate code on Rainbet.
 								</p>
 							</TooltipContent>
 						</Tooltip>
