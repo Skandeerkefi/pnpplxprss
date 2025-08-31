@@ -15,8 +15,8 @@ export function Footer() {
 						<p className='text-sm text-[#C33B52]'>
 							Join PnpplXprss's community for exciting gambling streams,
 							giveaways, and more. Use affiliate code{" "}
-							<span className='font-semibold text-[#EA8105]'>PnpplXprss</span>{" "}
-							on Rainbet.
+							<span className='font-semibold text-[#EA8105]'>pnppl </span> on
+							Rainbet.
 						</p>
 					</div>
 
