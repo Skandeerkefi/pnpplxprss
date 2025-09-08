@@ -24,7 +24,7 @@ interface LeaderboardState {
 	) => Promise<void>;
 }
 
-const API_URL = "https://pnpplxprssdata-yj6v.onrender.com/api/affiliates";
+const API_URL = "https://pnpplxprssdata-production.up.railway.app/api/affiliates";
 
 const getDateRange = (
 	period: LeaderboardPeriod
