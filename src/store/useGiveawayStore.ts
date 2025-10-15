@@ -43,7 +43,7 @@ export const useGiveawayStore = create<GiveawayState>((set, get) => ({
 			}));
 			set({ giveaways: enriched });
 		} catch (err) {
-			console.error("Failed to fetch giveaways", err);
+			console.error("❌ Failed to fetch giveaways:", err);
 		}
 	},
 
@@ -58,11 +58,14 @@ export const useGiveawayStore = create<GiveawayState>((set, get) => ({
 				}
 			);
 			await get().fetchGiveaways();
-			toast({ title: "Entered successfully" });
-		} catch {
+			toast({ title: "🎉 Entered giveaway successfully!" });
+		} catch (err: any) {
+			console.error("❌ Failed to join giveaway:", err);
 			toast({
 				title: "Error",
-				description: "You Should Wager to enter GW",
+				description:
+					err?.response?.data?.message ||
+					"Failed to join giveaway. Please try again later.",
 				variant: "destructive",
 			});
 		}
@@ -79,11 +82,12 @@ export const useGiveawayStore = create<GiveawayState>((set, get) => ({
 				}
 			);
 			await get().fetchGiveaways();
-			toast({ title: "Giveaway created successfully" });
-		} catch {
+			toast({ title: "✅ Giveaway created successfully!" });
+		} catch (err) {
+			console.error("❌ Failed to create giveaway:", err);
 			toast({
 				title: "Error",
-				description: "Failed to create giveaway",
+				description: "Failed to create giveaway.",
 				variant: "destructive",
 			});
 		}
@@ -100,11 +104,12 @@ export const useGiveawayStore = create<GiveawayState>((set, get) => ({
 				}
 			);
 			await get().fetchGiveaways();
-			toast({ title: "Winner drawn successfully" });
-		} catch {
+			toast({ title: "🏆 Winner drawn successfully!" });
+		} catch (err) {
+			console.error("❌ Failed to draw winner:", err);
 			toast({
 				title: "Error",
-				description: "Failed to draw winner",
+				description: "Failed to draw winner.",
 				variant: "destructive",
 			});
 		}
