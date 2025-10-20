@@ -14,7 +14,9 @@ export default function SlotOverlay() {
 					"https://pnpplxprssdata-yj6v.onrender.com/api/slot-calls",
 					{
 						headers: {
-							Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ODhkNmYzYTQxZWExNjU4MmI5MmI3OSIsInJvbGUiOiJhZG1pbiIsImtpY2tVc2VybmFtZSI6InJvb3QiLCJpYXQiOjE3NTY0MzA5ODIsImV4cCI6MTc1NzAzNTc4Mn0.q1uheERDUCH_x3SPLFXxxJOboyqgPqdIkGyINNp21Cg`,
+							Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4ODhkNmYzYTQxZWExNjU4MmI5MmI3OSIsInJvbGUiOiJhZG1pbiIsImtpY2tVc2VybmFtZSI6InJvb3QiLCJpYXQiOjE3NjA5NTM2NjksImV4cCI6MTc2MTU1ODQ2OX0.tDAEXKZH-Q0ZiVYef__UXF42kZ6fb5gEI4jWjXQtGrg
+if-none-match
+W/"1d82d-Xig9lBX3CeW4s0wziZqmktSmv9Y`,
 						},
 					}
 				);
