@@ -32,13 +32,19 @@ function GiveawaysPage() {
 		fetchGiveaways();
 	}, []);
 
-	const filteredGiveaways = giveaways.filter((giveaway) => {
-		const matchesSearch = giveaway.title
-			.toLowerCase()
-			.includes(searchQuery.toLowerCase());
-		const matchesStatus = filter === "all" || giveaway.status === filter;
-		return matchesSearch && matchesStatus;
-	});
+	const filteredGiveaways = giveaways
+		.filter((giveaway) => {
+			const matchesSearch = giveaway.title
+				.toLowerCase()
+				.includes(searchQuery.toLowerCase());
+			const matchesStatus = filter === "all" || giveaway.status === filter;
+			return matchesSearch && matchesStatus;
+		})
+		.sort((a, b) => {
+			// 🟧 Sort Active → Upcoming → Completed
+			const order = { active: 1, upcoming: 2, completed: 3 };
+			return order[a.status as keyof typeof order] - order[b.status as keyof typeof order];
+		});
 
 	const handleEnter = async (id: string) => {
 		if (!user) {
