@@ -32,11 +32,11 @@ const PRIZES: Record<LeaderboardPeriod, Record<number, number>> = {
 		4: 20,
 	},
 	biweekly: {
-		1: 125,
-		2: 75,
-		3: 50,
-		4: 30,
-		5: 20,
+		1: 225,
+		2: 125,
+		3: 75,
+		4: 50,
+		5:25,
 	},
 	monthly: {
 		1: 225,
