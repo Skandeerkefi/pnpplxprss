@@ -179,21 +179,21 @@ function SlotCallsPage() {
 	};
 
 	return (
-		<div className='flex flex-col min-h-screen bg-[#191F3B] text-white'>
+		<div className='flex flex-col min-h-screen bg-gradient-to-b from-[#0D0D0D] via-[#1A1A2E] to-[#0D0D0D] text-white'>
 			<Navbar />
 			<main className='container flex-grow py-8'>
 				<div className='flex items-center justify-between mb-4'>
-					<h1 className='text-2xl font-bold'>Slot Calls</h1>
+					<h1 className='text-2xl font-bold bg-gradient-to-r from-[#F97316] to-[#EA6D0C] bg-clip-text text-transparent'>Slot Calls</h1>
 					<Dialog>
 						<DialogTrigger asChild>
-							<Button variant='outline' className='flex items-center gap-2'>
+							<Button variant='outline' className='flex items-center gap-2 border-[#EA6D0C]/50 text-white hover:bg-[#EA6D0C] hover:border-[#EA6D0C] transition-all duration-300'>
 								<Plus className='w-4 h-4' /> New Slot Call
 							</Button>
 						</DialogTrigger>
-						<DialogContent>
+						<DialogContent className='bg-[#1A1A2E] border-[#EA6D0C]/30 text-white'>
 							<DialogHeader>
-								<DialogTitle>New Slot Call</DialogTitle>
-								<DialogDescription>
+								<DialogTitle className='text-[#F97316]'>New Slot Call</DialogTitle>
+								<DialogDescription className='text-white/70'>
 									Submit a new slot call to the system.
 								</DialogDescription>
 							</DialogHeader>
@@ -203,11 +203,13 @@ function SlotCallsPage() {
 									value={slotName}
 									onChange={(e) => setSlotName(e.target.value)}
 									disabled={isSubmitting}
+									className='bg-[#0D0D0D] border-[#EA6D0C]/30 text-white focus:border-[#F97316]'
 								/>
 								<DialogFooter>
 									<Button
 										onClick={handleSubmit}
 										disabled={isSubmitting || !slotName.trim()}
+										className='bg-gradient-to-r from-[#AF2D03] to-[#EA6D0C] hover:from-[#EA6D0C] hover:to-[#F97316] text-white'
 									>
 										Submit
 									</Button>
@@ -222,7 +224,7 @@ function SlotCallsPage() {
 						placeholder='Search slot name or requester...'
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
-						className='flex-grow max-w-sm'
+						className='flex-grow max-w-sm bg-[#1A1A2E] border-[#EA6D0C]/30 text-white focus:border-[#F97316]'
 					/>
 
 					<Tabs
@@ -230,20 +232,21 @@ function SlotCallsPage() {
 						onValueChange={(val) => setFilter(val as FilterStatus)}
 						className='flex-grow max-w-lg'
 					>
-						<TabsList>
-							<TabsTrigger value='all'>All</TabsTrigger>
-							<TabsTrigger value='pending'>Pending</TabsTrigger>
-							<TabsTrigger value='accepted'>Accepted</TabsTrigger>
-							<TabsTrigger value='played'>Played</TabsTrigger>
-							<TabsTrigger value='rejected'>Rejected</TabsTrigger>
+						<TabsList className='bg-[#1A1A2E] border border-[#EA6D0C]/20'>
+							<TabsTrigger value='all' className='data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#AF2D03] data-[state=active]:to-[#EA6D0C] data-[state=active]:text-white'>All</TabsTrigger>
+							<TabsTrigger value='pending' className='data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#AF2D03] data-[state=active]:to-[#EA6D0C] data-[state=active]:text-white'>Pending</TabsTrigger>
+							<TabsTrigger value='accepted' className='data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#AF2D03] data-[state=active]:to-[#EA6D0C] data-[state=active]:text-white'>Accepted</TabsTrigger>
+							<TabsTrigger value='played' className='data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#AF2D03] data-[state=active]:to-[#EA6D0C] data-[state=active]:text-white'>Played</TabsTrigger>
+							<TabsTrigger value='rejected' className='data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#AF2D03] data-[state=active]:to-[#EA6D0C] data-[state=active]:text-white'>Rejected</TabsTrigger>
 						</TabsList>
 					</Tabs>
 
-					<label className='flex items-center gap-2 text-sm text-white'>
+					<label className='flex items-center gap-2 text-sm text-white/80'>
 						<input
 							type='checkbox'
 							checked={showOnly250Hit}
 							onChange={(e) => setShowOnly250Hit(e.target.checked)}
+							className='accent-[#F97316]'
 						/>
 						Show only 250x Hit
 					</label>

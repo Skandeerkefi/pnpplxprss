@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { LeaderboardTable } from "@/components/LeaderboardTable";
@@ -27,6 +27,24 @@ function LeaderboardPage() {
 		viewPrevious ? getPreviousBiweeklyRange() : getCurrentBiweeklyRange()
 	);
 	const [timeLeft, setTimeLeft] = useState<string>("");
+	const audioRef = useRef<HTMLAudioElement | null>(null);
+
+	// Background music effect
+	useEffect(() => {
+		const audio = new Audio("https://res.cloudinary.com/ddyb6vfje/video/upload/v1772157038/Piney_s_Jackpot_Loyalty_tn7xww.mp3");
+		audio.loop = true;
+		audio.volume = 0.3;
+		audioRef.current = audio;
+
+		audio.play().catch((err) => {
+			console.log("Audio autoplay blocked:", err);
+		});
+
+		return () => {
+			audio.pause();
+			audio.src = "";
+		};
+	}, []);
 
 	useEffect(() => {
 		const selectedRange = viewPrevious
@@ -67,23 +85,23 @@ function LeaderboardPage() {
 	}, [range, viewPrevious]);
 
 	return (
-		<div className='flex flex-col min-h-screen bg-[#191F3B] text-white'>
+		<div className='flex flex-col min-h-screen bg-gradient-to-b from-[#0D0D0D] via-[#1A1A2E] to-[#0D0D0D] text-white'>
 			<Navbar />
 			<main className='container flex-grow py-8'>
 				<div className='flex items-center justify-between mb-8'>
-					<div className='flex items-center gap-2'>
-						<Crown className='w-6 h-6 text-[#EA6D0C]' />
-						<h1 className='text-3xl font-bold'>Rainbet Leaderboard</h1>
+					<div className='flex items-center gap-3'>
+						<Crown className='w-8 h-8 text-[#F97316]' />
+						<h1 className='text-3xl font-bold bg-gradient-to-r from-[#F97316] to-[#EA6D0C] bg-clip-text text-transparent'>Rainbet Leaderboard</h1>
 					</div>
 					<TooltipProvider>
 						<Tooltip>
 							<TooltipTrigger asChild>
-								<div className='flex items-center gap-1 text-sm text-[#C33B52] hover:text-[#EA6D0C] cursor-help'>
+								<div className='flex items-center gap-1 text-sm text-white/70 hover:text-[#F97316] cursor-help transition-colors duration-300'>
 									<Info className='w-4 h-4' />
 									<span>How It Works</span>
 								</div>
 							</TooltipTrigger>
-							<TooltipContent className='max-w-xs bg-[#191F3B] text-white border border-[#EA6D0C] shadow-lg'>
+							<TooltipContent className='max-w-xs bg-[#1A1A2E] text-white border border-[#EA6D0C]/50 shadow-xl'>
 								<p>
 									The leaderboard ranks players based on their total wager
 									amount using the pnppl affiliate code on Rainbet.
@@ -97,14 +115,14 @@ function LeaderboardPage() {
 				<div className='flex justify-center gap-4 mb-6'>
 					<Button
 						variant={viewPrevious ? "outline" : "default"}
-						className={`bg-[#AF2D03] text-white hover:bg-[#C33B52]`}
+						className={`${!viewPrevious ? 'bg-gradient-to-r from-[#AF2D03] to-[#EA6D0C] shadow-md shadow-[#EA6D0C]/25' : 'border-[#EA6D0C]/50'} text-white hover:from-[#EA6D0C] hover:to-[#F97316] transition-all duration-300`}
 						onClick={() => setViewPrevious(false)}
 					>
 						Current
 					</Button>
 					<Button
 						variant={viewPrevious ? "default" : "outline"}
-						className={`bg-[#1E2547] border border-[#EA6D0C] text-white hover:bg-[#EA6D0C]`}
+						className={`${viewPrevious ? 'bg-gradient-to-r from-[#AF2D03] to-[#EA6D0C] shadow-md shadow-[#EA6D0C]/25' : 'bg-[#1A1A2E] border border-[#EA6D0C]/50'} text-white hover:bg-[#EA6D0C] transition-all duration-300`}
 						onClick={() => setViewPrevious(true)}
 					>
 						Previous
@@ -114,7 +132,7 @@ function LeaderboardPage() {
 				{error && (
 					<Alert
 						variant='destructive'
-						className='mb-6 bg-[#AF2D03]/20 border-[#AF2D03] text-white'
+						className='mb-6 bg-[#AF2D03]/20 border-[#AF2D03]/50 text-white'
 					>
 						<AlertDescription>
 							Failed to load leaderboard: {error}
@@ -123,7 +141,7 @@ function LeaderboardPage() {
 				)}
 
 				<div className='mb-8'>
-					<h2 className='mb-6 text-2xl font-bold text-center text-white'>
+					<h2 className='mb-6 text-2xl font-bold text-center bg-gradient-to-r from-[#F97316] to-[#EA6D0C] bg-clip-text text-transparent'>
 						Top Players
 					</h2>
 					<div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
@@ -177,12 +195,12 @@ function LeaderboardPage() {
 				</div>
 
 				<div className='flex flex-col items-center justify-center mb-4'>
-					<h2 className='text-xl font-semibold text-center text-[#ffffff] border-2 border-[#38BDF8] rounded-md py-2 px-6 inline-block'>
+					<h2 className='text-xl font-semibold text-center text-white border-2 border-[#EA6D0C]/50 rounded-xl py-3 px-8 inline-block bg-[#1A1A2E]/50 backdrop-blur-sm'>
 						{viewPrevious
 							? "Previous Biweekly Leaderboard"
 							: "Current Biweekly Leaderboard"}
 					</h2>
-					<p className='mt-2 text-sm text-[#EA6D0C]'>
+					<p className='mt-2 text-sm text-[#F97316]'>
 						Period:{" "}
 						{new Date(range.start_at).toLocaleString("en-US", {
 							timeZone: "America/New_York",
@@ -206,7 +224,7 @@ function LeaderboardPage() {
 						(EST)
 					</p>
 					{!viewPrevious && (
-						<p className='mt-1 text-sm text-[#38BDF8]'>{timeLeft}</p>
+						<p className='mt-1 text-sm text-[#F97316] font-mono'>{timeLeft}</p>
 					)}
 				</div>
 
@@ -243,7 +261,7 @@ function RewardCard({
 	icon,
 }: RewardCardProps) {
 	return (
-		<div className='flex flex-col h-full overflow-hidden rounded-xl bg-[#1E2547] border border-[#EA6D0C]/30 shadow-sm'>
+		<div className='flex flex-col h-full overflow-hidden rounded-xl bg-gradient-to-br from-[#1A1A2E] to-[#0D0D0D] border border-[#EA6D0C]/30 shadow-xl hover:shadow-2xl hover:shadow-[#EA6D0C]/10 transition-all duration-300 hover:scale-105 hover:border-[#EA6D0C]/50'>
 			<div className={`h-2 bg-gradient-to-r ${backgroundColor}`} />
 			<div className='flex flex-col items-center flex-grow p-6 text-center text-white'>
 				<div className='mb-4'>{icon}</div>
@@ -251,21 +269,21 @@ function RewardCard({
 
 				{player ? (
 					<>
-						<p className='font-medium'>{player.username}</p>
-						<p className='text-[#C33B52]'>${player.wager.toLocaleString()}</p>
+						<p className='font-medium text-white'>{player.username}</p>
+						<p className='text-[#F97316] font-semibold'>${player.wager.toLocaleString()}</p>
 						<a
 							href='https://discord.com/invite/A5TdPxB5nN'
 							target='_blank'
 							rel='noreferrer'
 							className='w-full mt-4'
 						>
-							<Button className='w-full bg-[#AF2D03] hover:bg-[#C33B52] text-white'>
+							<Button className='w-full bg-gradient-to-r from-[#AF2D03] to-[#EA6D0C] hover:from-[#EA6D0C] hover:to-[#F97316] text-white font-semibold shadow-md shadow-[#EA6D0C]/25 transition-all duration-300'>
 								Claim Prize
 							</Button>
 						</a>
 					</>
 				) : (
-					<p className='text-[#C33B52]'>{reward}</p>
+					<p className='text-white/70'>{reward}</p>
 				)}
 			</div>
 		</div>

@@ -62,27 +62,27 @@ export function Navbar() {
 	];
 
 	return (
-		<nav className='sticky top-0 z-50 border-b border-[#EA8105]/40 backdrop-blur-md bg-[#191F3B]/95 text-white shadow-md'>
+		<nav className='sticky top-0 z-50 border-b border-[#EA6D0C]/30 backdrop-blur-xl bg-[#0D0D0D]/95 text-white shadow-lg shadow-black/20'>
 			<div className='container flex items-center justify-between py-3 mx-auto'>
 				{/* Logo & Live status */}
 				<div className='flex items-center gap-3'>
-					<Link to='/' className='flex items-center gap-2'>
+					<Link to='/' className='flex items-center gap-2 group'>
 						<img
-							src='https://i.ibb.co/DDn0q6D3/IMG-9430.webp'
-							alt='pnpplxprss Logo'
-							className='object-cover w-10 h-10 border rounded-full shadow-sm border-[#EA8105]/60'
+							src='https://i.ibb.co/vx47Rk0b/November-25-Logo.png'
+							alt='Pnppl Logo'
+							className='object-cover w-10 h-10 rounded-full shadow-md shadow-[#EA6D0C]/30 transition-transform duration-300 group-hover:scale-110'
 						/>
-						<span className='text-2xl font-bold text-[#C33B52] select-none'>
-							PnpplXprss
+						<span className='text-2xl font-extrabold bg-gradient-to-r from-[#F97316] via-[#EA6D0C] to-[#AF2D03] bg-clip-text text-transparent select-none'>
+							Pnppl
 						</span>
 					</Link>
 
 					{isLive ? (
-						<span className='ml-2 px-3 py-0.5 text-xs bg-[#AF2D03] text-white rounded-full font-semibold animate-pulse select-none'>
+						<span className='ml-2 px-3 py-0.5 text-xs bg-gradient-to-r from-[#AF2D03] to-[#EA6D0C] text-white rounded-full font-semibold animate-pulse select-none shadow-md shadow-[#AF2D03]/30'>
 							🔴 LIVE {viewerCount !== null ? `(${viewerCount})` : ""}
 						</span>
 					) : (
-						<span className='ml-2 px-3 py-0.5 text-xs bg-[#C33B52] text-white rounded-full font-semibold select-none'>
+						<span className='ml-2 px-3 py-0.5 text-xs bg-[#1A1A2E] text-white/70 rounded-full font-semibold select-none border border-white/10'>
 							Offline
 						</span>
 					)}
@@ -91,22 +91,22 @@ export function Navbar() {
 				{/* Desktop Navigation - Only show when NOT mobile */}
 				<div className={`${isMobile ? "hidden" : "flex items-center gap-6"}`}>
 					{/* Menu Links */}
-					<div className='flex items-center gap-3'>
-						{menuItems.map((item) => (
-							<Link
-								key={item.path}
-								to={item.path}
-								className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-									location.pathname === item.path
-										? "bg-[#AF2D03] text-white shadow-md"
-										: "text-[#ffffff] hover:bg-[#EA8105] hover:text-white"
-								}`}
-							>
-								{item.icon}
-								{item.name}
-							</Link>
-						))}
-					</div>
+						<div className='flex items-center gap-2'>
+							{menuItems.map((item) => (
+								<Link
+									key={item.path}
+									to={item.path}
+									className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+										location.pathname === item.path
+											? "bg-gradient-to-r from-[#AF2D03] to-[#EA6D0C] text-white shadow-md shadow-[#EA6D0C]/25"
+											: "text-white/80 hover:bg-[#1A1A2E] hover:text-[#F97316]"
+									}`}
+								>
+									{item.icon}
+									{item.name}
+								</Link>
+							))}
+						</div>
 
 					{/* Auth Buttons */}
 					<div className='flex items-center gap-3'>
@@ -159,24 +159,24 @@ export function Navbar() {
 				{/* Mobile Nav Toggle - Only show when mobile */}
 				{isMobile && (
 					<button
-						className='p-2 rounded-md hover:bg-[#EA8105]/30 focus:outline-none focus:ring-2 focus:ring-[#EA8105]'
+						className='p-2 rounded-lg hover:bg-[#1A1A2E] focus:outline-none focus:ring-2 focus:ring-[#F97316] transition-colors duration-300'
 						onClick={() => setIsOpen(!isOpen)}
 						aria-label='Toggle menu'
 						aria-expanded={isOpen}
 					>
 						<div className='space-y-1.5'>
 							<span
-								className={`block h-0.5 w-6 bg-white transition-all duration-300 ${
+								className={`block h-0.5 w-6 bg-[#F97316] transition-all duration-300 ${
 									isOpen ? "rotate-45 translate-y-2" : ""
 								}`}
 							/>
 							<span
-								className={`block h-0.5 w-6 bg-white transition-all duration-300 ${
+								className={`block h-0.5 w-6 bg-[#F97316] transition-all duration-300 ${
 									isOpen ? "opacity-0" : "opacity-100"
 								}`}
 							/>
 							<span
-								className={`block h-0.5 w-6 bg-white transition-all duration-300 ${
+								className={`block h-0.5 w-6 bg-[#F97316] transition-all duration-300 ${
 									isOpen ? "-rotate-45 -translate-y-2" : ""
 								}`}
 							/>
@@ -190,7 +190,7 @@ export function Navbar() {
 				<div
 					className={`container mx-auto overflow-hidden transition-all duration-300 ease-in-out ${
 						isOpen
-							? "max-h-screen py-3 border-t border-[#EA8105]/40"
+							? "max-h-screen py-3 border-t border-[#EA6D0C]/30"
 							: "max-h-0"
 					}`}
 				>
@@ -200,10 +200,10 @@ export function Navbar() {
 								key={item.path}
 								to={item.path}
 								onClick={() => setIsOpen(false)}
-								className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+								className={`flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${
 									location.pathname === item.path
-										? "bg-[#AF2D03] text-white"
-										: "text-[#ffffff] hover:bg-[#EA8105] hover:text-white"
+										? "bg-gradient-to-r from-[#AF2D03] to-[#EA6D0C] text-white shadow-md shadow-[#EA6D0C]/25"
+										: "text-white/80 hover:bg-[#1A1A2E] hover:text-[#F97316]"
 								}`}
 							>
 								{item.icon}
@@ -214,11 +214,11 @@ export function Navbar() {
 						<div className='flex flex-col gap-2 mt-3'>
 							{user ? (
 								<>
-									<Button variant='ghost' size='sm' className='w-full' asChild>
+									<Button variant='ghost' size='sm' className='w-full hover:bg-[#1A1A2E]' asChild>
 										<Link
 											to='/profile'
 											onClick={() => setIsOpen(false)}
-											className='flex items-center font-semibold text-white'
+											className='flex items-center font-semibold text-[#F97316]'
 										>
 											<User className='w-4 h-4 mr-1' />
 											{user.username}
@@ -227,7 +227,7 @@ export function Navbar() {
 									<Button
 										variant='outline'
 										size='sm'
-										className='w-full border-white text-white hover:bg-[#AF2D03] hover:border-[#AF2D03]'
+										className='w-full border-[#EA6D0C]/50 text-white hover:bg-gradient-to-r hover:from-[#AF2D03] hover:to-[#EA6D0C] hover:border-transparent transition-all duration-300'
 										onClick={() => {
 											logout();
 											setIsOpen(false);
@@ -242,7 +242,7 @@ export function Navbar() {
 									<Button
 										variant='outline'
 										size='sm'
-										className='w-full border-white text-[#ffffff] hover:bg-[#EA8105] hover:border-[#EA8105]'
+										className='w-full border-[#EA6D0C]/50 text-white hover:bg-[#1A1A2E] hover:text-[#F97316] hover:border-[#F97316] transition-all duration-300'
 										asChild
 									>
 										<Link
@@ -256,7 +256,7 @@ export function Navbar() {
 									</Button>
 									<Button
 										size='sm'
-										className='w-full text-[#ffffff] hover:text-[#EA8105] font-semibold'
+										className='w-full bg-gradient-to-r from-[#AF2D03] to-[#EA6D0C] hover:from-[#EA6D0C] hover:to-[#F97316] text-white font-semibold shadow-md shadow-[#EA6D0C]/25 transition-all duration-300'
 										asChild
 									>
 										<Link to='/signup' onClick={() => setIsOpen(false)}>

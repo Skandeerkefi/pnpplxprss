@@ -65,19 +65,19 @@ function SignupPage() {
 	};
 
 	return (
-		<div className='flex flex-col min-h-screen bg-[#191F3B] text-white'>
+		<div className='flex flex-col min-h-screen bg-gradient-to-b from-[#0D0D0D] via-[#1A1A2E] to-[#0D0D0D] text-white'>
 			<Navbar />
 
 			<main className='container flex items-center justify-center flex-grow py-12'>
-				<Card className='w-full max-w-md bg-[#191F3B] border border-[#EA8105]/40 text-white shadow-md rounded-xl'>
+				<Card className='w-full max-w-md bg-gradient-to-br from-[#1A1A2E] to-[#0D0D0D] border border-[#EA6D0C]/30 text-white shadow-2xl shadow-black/30 rounded-xl'>
 					<CardHeader className='space-y-1'>
 						<div className='flex items-center justify-center gap-2 mb-2'>
-							<UserPlus className='w-6 h-6 text-[#38BDF8]' />
-							<CardTitle className='text-2xl text-[#EA8105]'>
+							<UserPlus className='w-6 h-6 text-[#F97316]' />
+							<CardTitle className='text-2xl bg-gradient-to-r from-[#F97316] to-[#EA6D0C] bg-clip-text text-transparent'>
 								Create an Account
 							</CardTitle>
 						</div>
-						<CardDescription className='text-center text-[#ffffff]'>
+						<CardDescription className='text-center text-white/70'>
 							Enter your Kick and Rainbet usernames to register and join the
 							community
 						</CardDescription>
@@ -87,7 +87,7 @@ function SignupPage() {
 						<CardContent className='space-y-4'>
 							{/* Kick Username */}
 							<div className='space-y-2'>
-								<Label htmlFor='username' className='text-[#EA8105]'>
+								<Label htmlFor='username' className='text-[#F97316]'>
 									Kick Username
 								</Label>
 								<Input
@@ -96,13 +96,13 @@ function SignupPage() {
 									value={username}
 									onChange={(e) => setUsername(e.target.value)}
 									required
-									className='bg-[#191F3B] border border-[#EA8105] text-white placeholder:text-[#ffffff]'
+									className='bg-[#0D0D0D] border border-[#EA6D0C]/50 text-white placeholder:text-white/50 focus:border-[#F97316] transition-colors duration-300'
 								/>
 							</div>
 
 							{/* Rainbet Username */}
 							<div className='space-y-2'>
-								<Label htmlFor='rainbetUsername' className='text-[#EA8105]'>
+								<Label htmlFor='rainbetUsername' className='text-[#F97316]'>
 									Rainbet Username
 								</Label>
 								<Input
@@ -111,13 +111,13 @@ function SignupPage() {
 									value={rainbetUsername}
 									onChange={(e) => setRainbetUsername(e.target.value)}
 									required
-									className='bg-[#191F3B] border border-[#EA8105] text-white placeholder:text-[#ffffff]'
+									className='bg-[#0D0D0D] border border-[#EA6D0C]/50 text-white placeholder:text-white/50 focus:border-[#F97316] transition-colors duration-300'
 								/>
 							</div>
 
 							{/* Password */}
 							<div className='space-y-2'>
-								<Label htmlFor='password' className='text-[#EA8105]'>
+								<Label htmlFor='password' className='text-[#F97316]'>
 									Password
 								</Label>
 								<Input
@@ -130,13 +130,13 @@ function SignupPage() {
 										setPasswordError("");
 									}}
 									required
-									className='bg-[#191F3B] border border-[#EA8105] text-white placeholder:text-[#ffffff]'
+									className='bg-[#0D0D0D] border border-[#EA6D0C]/50 text-white placeholder:text-white/50 focus:border-[#F97316] transition-colors duration-300'
 								/>
 							</div>
 
 							{/* Confirm Password */}
 							<div className='space-y-2'>
-								<Label htmlFor='confirmPassword' className='text-[#EA8105]'>
+								<Label htmlFor='confirmPassword' className='text-[#F97316]'>
 									Confirm Password
 								</Label>
 								<Input
@@ -149,10 +149,10 @@ function SignupPage() {
 										setPasswordError("");
 									}}
 									required
-									className='bg-[#191F3B] border border-[#EA8105] text-white placeholder:text-[#ffffff]'
+									className='bg-[#0D0D0D] border border-[#EA6D0C]/50 text-white placeholder:text-white/50 focus:border-[#F97316] transition-colors duration-300'
 								/>
 								{passwordError && (
-									<p className='mt-1 text-xs text-[#AF2D03]'>{passwordError}</p>
+									<p className='mt-1 text-xs text-[#F97316]'>{passwordError}</p>
 								)}
 							</div>
 
@@ -164,20 +164,20 @@ function SignupPage() {
 									onCheckedChange={(checked) =>
 										setAgreedToTerms(checked as boolean)
 									}
-									className='border-[#EA8105]'
+									className='border-[#EA6D0C] data-[state=checked]:bg-[#F97316] data-[state=checked]:border-[#F97316]'
 								/>
 								<label
 									htmlFor='terms'
-									className='text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+									className='text-sm leading-none text-white/80 peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
 								>
 									I agree to the{" "}
-									<Link to='/terms' className='text-[#EA8105] hover:underline'>
+									<Link to='/terms' className='text-[#F97316] hover:underline'>
 										Terms of Service
 									</Link>{" "}
 									and{" "}
 									<Link
 										to='/privacy'
-										className='text-[#EA8105] hover:underline'
+										className='text-[#F97316] hover:underline'
 									>
 										Privacy Policy
 									</Link>
@@ -188,15 +188,15 @@ function SignupPage() {
 						<CardFooter className='flex flex-col space-y-4'>
 							<Button
 								type='submit'
-								className='w-full bg-[#EA8105] hover:bg-[#C33B52] text-white'
+								className='w-full bg-gradient-to-r from-[#AF2D03] to-[#EA6D0C] hover:from-[#EA6D0C] hover:to-[#F97316] text-white font-semibold shadow-md shadow-[#EA6D0C]/25 transition-all duration-300'
 								disabled={isLoading || !agreedToTerms}
 							>
 								{isLoading ? "Creating Account..." : "Create Account"}
 							</Button>
 
-							<div className='text-sm text-center text-[#C33B52]'>
+							<div className='text-sm text-center text-white/70'>
 								Already have an account?{" "}
-								<Link to='/login' className='text-[#EA8105] hover:underline'>
+								<Link to='/login' className='text-[#F97316] hover:underline'>
 									Sign In
 								</Link>
 							</div>

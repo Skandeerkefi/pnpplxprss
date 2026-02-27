@@ -44,17 +44,17 @@ export function SlotCallCard({
 	const showBonusInput = isUserView && x250Hit && !bonusCall;
 
 	return (
-		<div className='flex flex-col p-4 rounded-lg glass-card bg-[#191F3B] border border-[#EA6D0C]/40 text-white'>
+		<div className='flex flex-col p-4 rounded-xl bg-gradient-to-br from-[#1A1A2E] to-[#0D0D0D] border border-[#EA6D0C]/30 text-white shadow-xl hover:shadow-2xl hover:shadow-[#EA6D0C]/10 transition-all duration-300 hover:border-[#EA6D0C]/50'>
 			<div className='flex items-start justify-between'>
 				<h3 className='text-lg font-bold text-white'>{slotName}</h3>
 				<StatusBadge status={status} />
 			</div>
 
-			<div className='mt-2 text-sm text-[#EA6D0C]'>
+			<div className='mt-2 text-sm text-[#F97316]'>
 				Requested by: <span className='text-white'>{requester}</span>
 			</div>
 
-			<div className='flex items-center gap-1 mt-4 text-xs text-white'>
+			<div className='flex items-center gap-1 mt-4 text-xs text-white/60'>
 				<Clock className='w-3 h-3' />
 				{timestamp}
 			</div>
@@ -62,12 +62,13 @@ export function SlotCallCard({
 			{/* Admin Controls */}
 			{isAdminView && (
 				<div className='mt-4 space-y-2'>
-					<label className='flex items-center gap-2 text-sm text-[#38BDF8]'>
+					<label className='flex items-center gap-2 text-sm text-[#F97316]'>
 						<input
 							type='checkbox'
 							checked={x250Hit || false}
 							onChange={() => onToggleX250?.(id, !x250Hit)}
 							disabled={status !== "played"}
+							className='accent-[#F97316]'
 						/>
 						Mark as 250x Hit
 					</label>
@@ -76,14 +77,14 @@ export function SlotCallCard({
 						<div className='flex gap-2'>
 							<button
 								onClick={() => onAccept?.(id, x250Hit || false)}
-								className='flex items-center justify-center flex-1 gap-1 px-3 py-1 text-sm text-white bg-green-600 rounded hover:bg-green-700'
+								className='flex items-center justify-center flex-1 gap-1 px-3 py-1 text-sm text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors duration-300'
 							>
 								<Check className='w-4 h-4' /> Accept
 							</button>
 
 							<button
 								onClick={() => onReject?.(id)}
-								className='flex items-center justify-center flex-1 gap-1 px-3 py-1 text-sm text-white bg-red-600 rounded hover:bg-red-700'
+								className='flex items-center justify-center flex-1 gap-1 px-3 py-1 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors duration-300'
 							>
 								<X className='w-4 h-4' /> Reject
 							</button>
@@ -93,7 +94,7 @@ export function SlotCallCard({
 					{(status === "accepted" || status === "pending") && (
 						<button
 							onClick={() => onMarkPlayed?.(id)}
-							className='w-full py-1 mt-2 bg-[#EA8105] hover:bg-[#C33B52] text-white rounded'
+							className='w-full py-1 mt-2 bg-gradient-to-r from-[#AF2D03] to-[#EA6D0C] hover:from-[#EA6D0C] hover:to-[#F97316] text-white rounded-lg transition-all duration-300'
 						>
 							Mark as Played
 						</button>
@@ -110,7 +111,7 @@ export function SlotCallCard({
 								onDelete?.(id);
 							}
 						}}
-						className='w-full py-1 mt-2 text-white bg-red-700 rounded hover:bg-red-800'
+						className='w-full py-1 mt-2 text-white bg-red-700 rounded-lg hover:bg-red-800 transition-colors duration-300'
 					>
 						Delete
 					</button>
@@ -119,7 +120,7 @@ export function SlotCallCard({
 
 			{/* Bonus Call Submitted */}
 			{bonusCall && (
-				<div className='mt-4 text-sm text-[#38BDF8]'>
+				<div className='mt-4 text-sm text-[#F97316]'>
 					<Gift className='inline w-4 h-4 mr-1' />
 					Bonus Call:{" "}
 					<span className='font-semibold text-white'>{bonusCall.name}</span>
@@ -129,7 +130,7 @@ export function SlotCallCard({
 			{/* Bonus Call Submission */}
 			{showBonusInput && (
 				<div className='mt-4 space-y-2'>
-					<label htmlFor={`bonus-${id}`} className='text-sm text-[#EA6D0C]'>
+					<label htmlFor={`bonus-${id}`} className='text-sm text-[#F97316]'>
 						🎁 20$ Bonus Call Slot Name
 					</label>
 					<input
@@ -138,13 +139,13 @@ export function SlotCallCard({
 						placeholder='e.g. Sugar Rush'
 						value={bonusInput}
 						onChange={(e) => setBonusInput(e.target.value)}
-						className='w-full px-3 py-1 bg-[#191F3B] border border-[#EA6D0C] text-white rounded'
+						className='w-full px-3 py-1 bg-[#0D0D0D] border border-[#EA6D0C]/50 text-white rounded-lg focus:border-[#F97316] transition-colors duration-300'
 					/>
 					<button
 						onClick={() =>
 							bonusInput.trim() && onBonusSubmit?.(id, bonusInput.trim())
 						}
-						className='w-full py-1 mt-1 bg-[#AF2D03] hover:bg-[#C33B52] text-white rounded'
+						className='w-full py-1 mt-1 bg-gradient-to-r from-[#AF2D03] to-[#EA6D0C] hover:from-[#EA6D0C] hover:to-[#F97316] text-white rounded-lg transition-all duration-300'
 					>
 						Submit Bonus Call
 					</button>
@@ -162,7 +163,7 @@ function StatusBadge({ status }: { status: SlotCallStatus }) {
 		case "pending":
 			return (
 				<span
-					className={`${baseClass} text-[#EA8105] border-[#EA8105] bg-[#EA8105]/20`}
+					className={`${baseClass} text-[#F97316] border-[#F97316]/50 bg-[#F97316]/20`}
 				>
 					Pending
 				</span>
@@ -170,7 +171,7 @@ function StatusBadge({ status }: { status: SlotCallStatus }) {
 		case "accepted":
 			return (
 				<span
-					className={`${baseClass} text-[#38BDF8] border-[#38BDF8] bg-[#38BDF8]/20`}
+					className={`${baseClass} text-[#22C55E] border-[#22C55E]/50 bg-[#22C55E]/20`}
 				>
 					Accepted
 				</span>
@@ -178,7 +179,7 @@ function StatusBadge({ status }: { status: SlotCallStatus }) {
 		case "played":
 			return (
 				<span
-					className={`${baseClass} text-[#34D399] border-[#34D399] bg-[#34D399]/20`}
+					className={`${baseClass} text-[#34D399] border-[#34D399]/50 bg-[#34D399]/20`}
 				>
 					Played
 				</span>
@@ -187,7 +188,7 @@ function StatusBadge({ status }: { status: SlotCallStatus }) {
 		default:
 			return (
 				<span
-					className={`${baseClass} text-[#C33B52] border-[#C33B52] bg-[#C33B52]/20`}
+					className={`${baseClass} text-[#EF4444] border-[#EF4444]/50 bg-[#EF4444]/20`}
 				>
 					Rejected
 				</span>
