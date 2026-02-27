@@ -84,12 +84,12 @@ function LoginPage() {
 									<Label htmlFor='password' className='text-[#F97316]'>
 										Password
 									</Label>
-									<Link
+									{/* <Link
 										to='/forgot-password'
 										className='text-xs text-[#F97316] hover:underline'
 									>
 										Forgot password?
-									</Link>
+									</Link> */}
 								</div>
 								<Input
 									id='password'
