@@ -41,11 +41,16 @@ const PRIZES: Record<LeaderboardPeriod, Record<number, number>> = {
 		7:30,
 	},
 	monthly: {
-		1: 225,
-		2: 125,
-		3: 75,
-		4: 50,
-		5:25,
+		1: 400,
+		2: 250,
+		3: 150,
+		4: 100,
+		5: 75,
+		6: 60,
+		7: 50,
+		8: 45,
+		9: 40,
+		10: 30,
 	},
 };
 

@@ -51,15 +51,19 @@ const getDateRange = (
 		};
 	}
 
+	if (period === "monthly") {
+		const range = getCurrentMonthlyRange();
+		return {
+			start_at: range.start_at.split("T")[0],
+			end_at: range.end_at.split("T")[0],
+		};
+	}
+
 	const endDate = new Date(now);
 	endDate.setHours(23, 59, 59, 999);
 
 	const startDate = new Date(now);
-	if (period === "weekly") {
-		startDate.setDate(now.getDate() - 7);
-	} else if (period === "monthly") {
-		startDate.setFullYear(now.getFullYear(), now.getMonth(), 1);
-	}
+	startDate.setDate(now.getDate() - 7);
 	startDate.setHours(0, 0, 0, 0);
 
 	return {
@@ -90,7 +94,7 @@ export const useLeaderboardStore = create<LeaderboardState>((set, get) => ({
 	weeklyLeaderboard: [],
 	biweeklyLeaderboard: [],
 	monthlyLeaderboard: [],
-	period: "biweekly",
+	period: "monthly",
 	isLoading: false,
 	error: null,
 	setPeriod: (period) => set({ period }),
@@ -162,5 +166,118 @@ export function getPreviousBiweeklyRange() {
 	return {
 		start_at: start.toISOString(),
 		end_at: end.toISOString(),
+	};
+}
+
+// Monthly cycle anchored on a fixed start: July 4, 2026, 8:00 PM Eastern Time.
+// Each cycle runs from the anchor to the same wall-clock time one calendar month
+// later (e.g. July 4, 2026 8:00 PM ET -> August 4, 2026 8:00 PM ET), then rolls
+// forward. Uses America/New_York so it's correct through EDT/EST transitions.
+const EASTERN_TZ = "America/New_York";
+
+// Given a UTC instant, return that instant's wall-clock date/time as seen in
+// America/New_York (year/month are calendar values, month is 1-indexed here).
+function getEasternParts(date: Date) {
+	const parts = new Intl.DateTimeFormat("en-US", {
+		timeZone: EASTERN_TZ,
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+		hour: "2-digit",
+		minute: "2-digit",
+		second: "2-digit",
+		hour12: false,
+	}).formatToParts(date);
+
+	const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "0";
+
+	return {
+		year: parseInt(get("year"), 10),
+		month: parseInt(get("month"), 10), // 1-12
+		day: parseInt(get("day"), 10),
+		hour: parseInt(get("hour"), 10) % 24, // Intl can return "24" for midnight
+		minute: parseInt(get("minute"), 10),
+		second: parseInt(get("second"), 10),
+	};
+}
+
+// Convert a given Eastern wall-clock date/time (month is 1-indexed) into the
+// correct UTC instant, accounting for EDT/EST automatically.
+function easternWallTimeToUTC(
+	year: number,
+	month: number,
+	day: number,
+	hour: number,
+	minute = 0,
+	second = 0
+): Date {
+	// Initial guess treating the wall time as if it were UTC
+	const guess = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+
+	// Find what offset America/New_York actually has at that moment
+	const offsetFormatter = new Intl.DateTimeFormat("en-US", {
+		timeZone: EASTERN_TZ,
+		timeZoneName: "shortOffset",
+	});
+	const offsetPart = offsetFormatter
+		.formatToParts(guess)
+		.find((p) => p.type === "timeZoneName")?.value; // e.g. "GMT-4"
+	const match = offsetPart?.match(/GMT([+-]\d+)/);
+	const offsetHours = match ? parseInt(match[1], 10) : -5;
+
+	// guess was built as if wall time == UTC; shift by the real offset
+	return new Date(guess.getTime() - offsetHours * 60 * 60 * 1000);
+}
+
+function addOneEasternMonth(date: Date): Date {
+	const p = getEasternParts(date);
+	let month = p.month + 1;
+	let year = p.year;
+	if (month > 12) {
+		month = 1;
+		year += 1;
+	}
+	return easternWallTimeToUTC(year, month, p.day, p.hour, p.minute, p.second);
+}
+
+function subtractOneEasternMonth(date: Date): Date {
+	const p = getEasternParts(date);
+	let month = p.month - 1;
+	let year = p.year;
+	if (month < 1) {
+		month = 12;
+		year -= 1;
+	}
+	return easternWallTimeToUTC(year, month, p.day, p.hour, p.minute, p.second);
+}
+
+const MONTHLY_ANCHOR = easternWallTimeToUTC(2026, 7, 4, 20, 0, 0); // July 4, 2026, 8:00 PM ET
+
+export function getCurrentMonthlyRange() {
+	const now = new Date();
+
+	let start = new Date(MONTHLY_ANCHOR.getTime());
+	let end = addOneEasternMonth(start);
+
+	// Roll forward until we land on the cycle containing "now"
+	while (end.getTime() <= now.getTime()) {
+		start = end;
+		end = addOneEasternMonth(start);
+	}
+
+	return {
+		start_at: start.toISOString(),
+		end_at: end.toISOString(),
+	};
+}
+
+export function getPreviousMonthlyRange() {
+	const current = getCurrentMonthlyRange();
+	const currentStart = new Date(current.start_at);
+	const start = subtractOneEasternMonth(currentStart);
+
+	return {
+		start_at: start.toISOString(),
+		end_at: current.start_at,
 	};
 }

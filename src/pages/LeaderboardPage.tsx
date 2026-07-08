@@ -4,8 +4,8 @@ import { Footer } from "@/components/Footer";
 import { LeaderboardTable } from "@/components/LeaderboardTable";
 import {
 	useLeaderboardStore,
-	getCurrentBiweeklyRange,
-	getPreviousBiweeklyRange,
+	getCurrentMonthlyRange,
+	getPreviousMonthlyRange,
 	LeaderboardPlayer,
 } from "@/store/useLeaderboardStore";
 import { Crown, Info, Loader2, Trophy, Award, Medal } from "lucide-react";
@@ -19,12 +19,12 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 function LeaderboardPage() {
-	const { biweeklyLeaderboard, fetchLeaderboard, isLoading, error } =
+	const { monthlyLeaderboard, fetchLeaderboard, isLoading, error } =
 		useLeaderboardStore();
 
 	const [viewPrevious, setViewPrevious] = useState(false);
 	const [range, setRange] = useState(() =>
-		viewPrevious ? getPreviousBiweeklyRange() : getCurrentBiweeklyRange()
+		viewPrevious ? getPreviousMonthlyRange() : getCurrentMonthlyRange()
 	);
 	const [timeLeft, setTimeLeft] = useState<string>("");
 	const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -48,15 +48,15 @@ function LeaderboardPage() {
 
 	useEffect(() => {
 		const selectedRange = viewPrevious
-			? getPreviousBiweeklyRange()
-			: getCurrentBiweeklyRange();
+			? getPreviousMonthlyRange()
+			: getCurrentMonthlyRange();
 		setRange(selectedRange);
 
 		// Pass only YYYY-MM-DD format to fetchLeaderboard
 		const start_at = selectedRange.start_at.split("T")[0];
 		const end_at = selectedRange.end_at.split("T")[0];
 
-		fetchLeaderboard("biweekly", start_at, end_at);
+		fetchLeaderboard("monthly", start_at, end_at);
 	}, [viewPrevious, fetchLeaderboard]);
 
 	useEffect(() => {
@@ -68,7 +68,7 @@ function LeaderboardPage() {
 			const diff = end.getTime() - now.getTime();
 
 			if (diff <= 0) {
-				const newRange = getCurrentBiweeklyRange();
+				const newRange = getCurrentMonthlyRange();
 				setRange(newRange);
 				return;
 			}
@@ -145,27 +145,27 @@ function LeaderboardPage() {
 						Top Players
 					</h2>
 					<div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-						{biweeklyLeaderboard.length > 0 ? (
+						{monthlyLeaderboard.length > 0 ? (
 							<>
 								<RewardCard
 									position='2nd Place'
 									reward='$250 Cash + Special Role'
 									backgroundColor='from-slate-300 to-slate-400'
-									player={biweeklyLeaderboard[1]}
+									player={monthlyLeaderboard[1]}
 									icon={<Award className='w-8 h-8 text-slate-300' />}
 								/>
 								<RewardCard
 									position='1st Place'
 									reward='$500 Cash + Special Role'
 									backgroundColor='from-yellow-400 to-amber-600'
-									player={biweeklyLeaderboard[0]}
+									player={monthlyLeaderboard[0]}
 									icon={<Trophy className='w-8 h-8 text-yellow-400' />}
 								/>
 								<RewardCard
 									position='3rd Place'
 									reward='$100 Cash + Special Role'
 									backgroundColor='from-amber-700 to-amber-800'
-									player={biweeklyLeaderboard[2]}
+									player={monthlyLeaderboard[2]}
 									icon={<Medal className='w-8 h-8 text-amber-600' />}
 								/>
 							</>
@@ -197,8 +197,8 @@ function LeaderboardPage() {
 				<div className='flex flex-col items-center justify-center mb-4'>
 					<h2 className='text-xl font-semibold text-center text-white border-2 border-[#EA6D0C]/50 rounded-xl py-3 px-8 inline-block bg-[#1A1A2E]/50 backdrop-blur-sm'>
 						{viewPrevious
-							? "Previous Biweekly Leaderboard"
-							: "Current Biweekly Leaderboard"}
+							? "Previous Monthly Leaderboard"
+							: "Current Monthly Leaderboard"}
 					</h2>
 					<p className='mt-2 text-sm text-[#F97316]'>
 						Period:{" "}
@@ -234,8 +234,8 @@ function LeaderboardPage() {
 					</div>
 				) : (
 					<LeaderboardTable
-						period='biweekly'
-						data={biweeklyLeaderboard}
+						period='monthly'
+						data={monthlyLeaderboard}
 						isLoading={isLoading}
 					/>
 				)}
