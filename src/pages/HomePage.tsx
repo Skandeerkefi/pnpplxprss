@@ -8,6 +8,7 @@ import { Dices, Crown, Gift, Users, ArrowRight, ChevronDown } from "lucide-react
 import {
 	useLeaderboardStore,
 	getCurrentBiweeklyRange,
+	getCurrentMonthlyRange,
 } from "@/store/useLeaderboardStore";
 import { useSlotCallStore } from "@/store/useSlotCallStore";
 import { useGiveawayStore } from "@/store/useGiveawayStore";
@@ -44,9 +45,9 @@ function HomePage() {
 		}
 	}, []);
 
-	const { end_at } = getCurrentBiweeklyRange();
+	const { end_at } = getCurrentMonthlyRange();
 
-	const [range, setRange] = useState(() => getCurrentBiweeklyRange());
+	const [range, setRange] = useState(() => getCurrentMonthlyRange());
 	const [timeLeft, setTimeLeft] = useState<string>("");
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -55,7 +56,7 @@ function HomePage() {
 			const diff = end.getTime() - now.getTime();
 
 			if (diff <= 0) {
-				const newRange = getCurrentBiweeklyRange();
+				const newRange = getCurrentMonthlyRange();
 				setRange(newRange);
 				return;
 			}
