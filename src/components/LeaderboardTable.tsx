@@ -41,16 +41,16 @@ const PRIZES: Record<LeaderboardPeriod, Record<number, number>> = {
 		7:30,
 	},
 	monthly: {
-		1: 400,
-		2: 250,
-		3: 150,
-		4: 100,
-		5: 75,
-		6: 60,
-		7: 50,
-		8: 45,
-		9: 40,
-		10: 30,
+		1: 250,
+		2: 150,
+		3: 100,
+		4: 70,
+		5: 55,
+		6: 45,
+		7: 40,
+		8: 35,
+		9: 30,
+		10: 25,
 	},
 };
 
@@ -71,8 +71,8 @@ export function LeaderboardTable({ period, data }: LeaderboardTableProps) {
 						<TableHead className='w-12 text-center text-[#F97316] font-bold'>
 							Rank
 						</TableHead>
-						<TableHead className='text-white/90 font-bold'>Player</TableHead>
-						<TableHead className='text-right text-white/90 font-bold'>Wager</TableHead>
+						<TableHead className='font-bold text-white/90'>Player</TableHead>
+						<TableHead className='font-bold text-right text-white/90'>Wager</TableHead>
 						<TableHead className='text-right text-[#F97316] font-bold'>Prize</TableHead>
 					</TableRow>
 				</TableHeader>
